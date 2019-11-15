@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `BW_Config`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `BW_Config` (
-  `Site` varchar(45) NOT NULL DEFAULT '',
+  `Site` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `Key` varchar(255) NOT NULL,
   `Value` varchar(4096) NOT NULL DEFAULT '',
   PRIMARY KEY (`Site`,`Key`)
@@ -46,19 +46,14 @@ DROP TABLE IF EXISTS `BW_Object`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `BW_Object` (
-  `Site` varchar(45) NOT NULL,
+  `Site` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `URL` varchar(255) NOT NULL,
   `Title` varchar(255) NOT NULL DEFAULT 'Bearweb webpage',
   `Keywords` varchar(255) NOT NULL DEFAULT '',
   `Description` varchar(4096) NOT NULL DEFAULT '',
-  `Author` varchar(16) NOT NULL DEFAULT '',
-  `Copyright` varchar(255) NOT NULL DEFAULT 'All rights reserved',
   `Binary` longblob,
-  `ServerData` longtext NOT NULL,
-  `ClientData` longtext NOT NULL,
-  `CreateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `LastModify` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Site`,`URL`)
+  PRIMARY KEY (`Site`,`URL`),
+  CONSTRAINT `BW_Object__URLLink` FOREIGN KEY (`Site`, `URL`) REFERENCES `BW_Sitemap` (`Site`, `URL`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -91,15 +86,40 @@ DROP TABLE IF EXISTS `BW_Sitemap`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `BW_Sitemap` (
-  `Site` varchar(45) NOT NULL,
+  `Site` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `URL` varchar(255) NOT NULL,
   `Category` varchar(45) NOT NULL,
   `TemplateMain` varchar(45) NOT NULL,
   `TemplateSub` varchar(45) NOT NULL,
+  `Author` varchar(16) DEFAULT NULL,
+  `CreateTime` datetime DEFAULT NULL,
+  `LastModify` datetime DEFAULT NULL,
+  `Copyright` varchar(255) DEFAULT NULL,
   `Status` char(1) NOT NULL DEFAULT 'O',
-  PRIMARY KEY (`URL`,`Site`)
+  `Info` json NOT NULL,
+  PRIMARY KEY (`Site`,`URL`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `Bearweb`.`BW_Sitemap_BEFORE_INSERT` BEFORE INSERT ON `BW_Sitemap` FOR EACH ROW
+BEGIN
+	IF (NEW.Info IS NULL) THEN
+		SET NEW.Info = '{}';
+	END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `BW_Transaction`
@@ -123,7 +143,7 @@ CREATE TABLE `BW_Transaction` (
   KEY `BW_Transaction__SIDLink` (`SessionID`),
   CONSTRAINT `BW_Transaction__SIDLink` FOREIGN KEY (`SessionID`) REFERENCES `BW_Session` (`SessionID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `BW_Transaction__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,17 +157,37 @@ CREATE TABLE `BW_User` (
   `Username` char(16) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `Nickname` char(16) NOT NULL,
   `Group` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `Password` char(32) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `Password` char(32) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `LastActiveTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `RegisterIP` char(15) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `RegisterTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Email` varchar(128) DEFAULT NULL,
-  `Data` longtext,
+  `Data` json NOT NULL,
   `Photo` blob,
   PRIMARY KEY (`Username`),
   UNIQUE KEY `Username_UNIQUE` (`Username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `Bearweb`.`BW_User_BEFORE_INSERT` BEFORE INSERT ON `BW_User` FOR EACH ROW
+BEGIN
+	IF (NEW.`Data` IS NULL) THEN
+		SET NEW.`Data` = '{}';
+	END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `BW_Webpage`
@@ -157,22 +197,16 @@ DROP TABLE IF EXISTS `BW_Webpage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `BW_Webpage` (
-  `Site` varchar(45) NOT NULL,
+  `Site` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `URL` varchar(255) NOT NULL,
-  `Language` varchar(10) NOT NULL,
+  `Language` varchar(5) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `Title` varchar(255) NOT NULL DEFAULT 'Bearweb webpage',
   `Keywords` varchar(255) NOT NULL DEFAULT '',
   `Description` varchar(4096) NOT NULL DEFAULT '',
-  `Author` varchar(16) NOT NULL DEFAULT '',
-  `Copyright` varchar(255) NOT NULL DEFAULT 'All rights reserved',
-  `HTML` longtext NOT NULL,
   `Source` longtext NOT NULL,
   `Style` varchar(45) NOT NULL DEFAULT 'plaintext',
-  `ServerData` longtext NOT NULL,
-  `ClientData` longtext NOT NULL,
-  `CreateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `LastModify` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Site`,`URL`,`Language`)
+  PRIMARY KEY (`Site`,`URL`,`Language`),
+  CONSTRAINT `BW_Webpage__URLLink` FOREIGN KEY (`Site`, `URL`) REFERENCES `BW_Sitemap` (`Site`, `URL`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -581,4 +615,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-15 18:40:17
+-- Dump completed on 2019-11-16  8:54:52
