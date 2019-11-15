@@ -138,7 +138,7 @@
 		}
 		final public function commit() {
 			$this->taskOrder++;
-			writeLog($this->taskOrder.': All changes to database saved.');
+			writeLog($this->taskOrder.': All changes to database buffered.');
 		}
 		final public function cancel() {
 			parent::query('ROLLBACK TO X'.$this->taskOrder,array());
