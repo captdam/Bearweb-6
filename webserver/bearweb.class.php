@@ -123,8 +123,7 @@
 			$this->getSiteConfig($this->site);
 			$this->getClientInfo($this->client);
 			$this->getPage($this->page);
-			return;
-			$this->processData();
+			$this->processData($this->page,$this->client);
 		}
 		public function done() {
 			
@@ -297,8 +296,15 @@
 				true);
 				if (!$user) goto Returned_user_visitor; #This should not happen because of foreign key, but just in case
 				
+				//User group is an array
+				$user = $user[0];
+				$user['Group'] = explode(',',$user['Group']);
+				foreach ($user['Group'] as &$x) {
+					$x = trim($x);
+				}
+				
 				//Append user info
-				$client['UserInfo'] = $user[0];
+				$client['UserInfo'] = $user;
 				writeLog('Returned user: Member. Username: '.$client['UserInfo']['Username']);
 				return;
 			
@@ -342,7 +348,7 @@
 				),
 			true);
 			if(!$page) {
-				throw new BW_ClientError(404,'Page not found');
+				throw new BW_ClientError(404,'Page not found.');
 			}
 			/*
 			Sitemap_get:
@@ -352,67 +358,59 @@
 			Status: Char array, FIND_IN_SET, or NULL for ALL
 			*/
 			
+			$page = $page[0];
+			$page['Info'] = json_decode($page['Info']);
 			writeLog('Page data fetched.');
 		}
 
 		//Process page data
-		protected function processData() {
-			writeLog('Processing page. Status: '.$this->data['Status']);
+		protected function processData($page,$client) {
+			writeLog('Processing page. Status: '.$page['Status']);
 			
 			//Determine flag
-			switch($this->data['Status']) {
+			switch($page['Status']) {
 			  case 'R': #Page removed perm
 			  case 'r': #Page removed temp
 				if (
-					!isset($this->data['JSON']['redirect']) ||
-					!is_string($this->data['JSON']['redirect'])
+					!isset($page['Info']['Redirect']) ||
+					!is_string($page['Info']['Redirect'])
 				) {
-					http_response_code(500);
-					writeLog('Redirect URL undefined.',true);
-					throw new BW_Error( DEBUGMODE ?
-						'Bearweb framework server error: Redirect URL undefined, redirect fail.' :
-						'Bearweb framework server-side error'
-					);
+					throw new BW_WebServerError(500,'Redirect info missed.');
 				}
 				
-				http_response_code($this->data['Status'] == 'R' ? 301 : 302);
-				header('Location: /'.$this->data['JSON']['redirect']);
-				writeLog('Page redirect to: '.$this->data['JSON']['redirect']);
-				exit;
+				$redirect = $page['Info']['Redirect'];
+				http_response_code($page['Status'] == 'R' ? 301 : 302);
+				header('Location: /'.$redirect);
+				writeLog('Page redirect to: '.$redirect);
+				break;
 			
 			  case 'A': #Auth need (privilege)
 				if (
-					!isset($this->data['JSON']['whitelist']) ||
-					!is_array($this->data['JSON']['whitelist'])
+					!isset($page['Info']['Whitelist']) ||
+					!is_array($page['Info']['Whitelist']) ||
+					!isset($page['Info']['Whitelist']['Username']) ||
+					!is_array($page['Info']['Whitelist']['Username']) ||
+					!isset($page['Info']['Whitelist']['Group']) ||
+					!is_array($page['Info']['Whitelist']['Group'])
 				) {
-					http_response_code(500);
-					writeLog('Whitelist undefined.',true);
-					throw new BW_Error( DEBUGMODE ?
-						'Bearweb framework server error: Whitelist undefined, fail to varify privilege.' :
-						'Bearweb framework server-side error'
-					);
+					throw new BW_WebServerError(500,'Whitelist info missed.');
 				}
 				
 				if (
-					$this->client['Group'] != '@Admin' &&
-					$this->client['Username'] != $this->data['Author'] &&
-					!in_array($this->client['Username'],$this->data['JSON']['whitelist']) &&
-					!in_array($this->client['Group'],$this->data['JSON']['whitelist'])
-				) { #Open to admin group, author and those has privilege
-					http_response_code(401);
-					writeLog('Access denied: auth required.');
-					throw new BW_Error('Page is locked/pending, only admin, author and those have the privilege could access this resource, please auth first.');
+					!in_array('Admin',$client['Group']) &&
+					!in_array($client['Username'],$page['Info']['Whitelist']['Username']) &&
+					count(array_intersect($client['Group'],$page['Info']['Whitelist']['Group'])) == 0
+				) {
+					throw new BW_WebServerError(401,'Access denied: auth required. Page is locked/pending, only admin, author and those have the privilege could access this resource, please auth first.');
 				}
 				break;
 			
 			  case 'P': #Pending page
 				if (
-					$this->client['Group'] != '@Admin' &&
-					$this->client['Username'] != $this->data['Author']
+					!in_array('Admin',$client['Group']) &&
+					$client['Username'] != $page['Author']
 				) {
-					http_response_code(403);
-					writeLog('Access denied: pending page.');
-					throw new BW_Error('Page is locked/pending, only admin and the author have the privilege to access this resource, please auth first.');
+					throw new BW_WebServerError(403,'Access denied: pending page. Page is locked/pending, only admin and the author have the privilege to access this resource, please auth first.');
 				}
 				break;
 			
@@ -423,44 +421,21 @@
 				break;
 			
 			  default:
-				http_response_code(500);
-				writeLog('Invalid status code.',true);
-				throw new BW_Error( DEBUGMODE ?
-					'Bearweb framework server error: Status code not supported.' :
-					'Bearweb framework server-side error'
-				);
+				throw new BW_WebServerError(500,'Invalid status code for page.');
 			}
-			writeLog('Page status processed.');
 			
 			//Send page misc headers
-			header('Content-Type: '.$this->data['MIME']);
-			if ($this->data['CreateTime'] == '1000-01-01 00:00:00') {
+			if ($page['LastModify'] == null) {
 				header('Last-Modified: '.date('D, j M Y G:i:s').' GMT');
 				header('Etag: '.md5(rand()));
 			}
 			else {
-				header('Last-Modified: '.date('D, j M Y G:i:s',strtotime($this->data['LastModify'])).' GMT');
-				header('Etag: '.$this->data['LastModify']);
+				header('Last-Modified: '.date('D, j M Y G:i:s',strtotime($page['LastModify'])).' GMT');
+				header('Etag: '.trim( base64_encode($page['LastModify']),"= \t\n\r\0\x0B") );
 			}
+			
 			writeLog('Page processed.');
 		}
-		
-		
-//		//Debug using
-//		function __debuginfo() {
-//			$return = array(
-//				'URL' => $this->URL,
-//				'site' => array(
-//					'Closede' => $this->site['Closed']
-//				),
-//				'client' => $this->client,
-//				'data' => $this->data
-//			);
-//			$return['data']['Data'] = '==STRING==';
-//			$return['data']['Binary'] = '==BINARY==';
-//			$return['data']['JSON'] = '==JSON==';
-//			return $return;
-//		}
 
 	}
 ?>
