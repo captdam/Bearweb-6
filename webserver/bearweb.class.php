@@ -263,7 +263,7 @@
 					array('SessionID'=>$session['SessionID'])
 				);
 				
-				//Log
+				//Log - returned
 				$this->database->call(
 					'Transaction_bindClientInfo',
 					array(
@@ -315,6 +315,17 @@
 				$session = $this->database->call('Session_new',array(),true)[0];
 				$client['SessionInfo'] = array_merge($client['SessionInfo'],$session);
 				writeLog('New user. Generate Session ID: '.$session['SessionID']);
+				
+				//Log - returned
+				$this->database->call(
+					'Transaction_bindClientInfo',
+					array(
+						'RecordID'	=> $this->logID,
+						'SessionID'	=> $session['SessionID'],
+						'Username'	=> $session['Username'],
+						'IP'		=> $client['SessionInfo']['IP']
+					)
+				);
 				
 				//Send token to user
 				setcookie('SessionID',$session['SessionID'],0,'/','',FORCEHTTPS,true);
