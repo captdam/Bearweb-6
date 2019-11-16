@@ -23,31 +23,19 @@
 		//Print error page (using the HTML page template)
 		public function useErrorTemplate($errorMessage) {
 			writeLog('Error found, now handing by error template: '.$errorMessage);
-			$this->data = array(
-				'URL'		=> '',
-				'MIME'		=> 'text/html',
-				'Title'		=> 'An error has been detected',
-				'Keywords'	=> '',
-				'Description'	=> 'Bearweb framework error page',
-				'Category'	=> 'Error',
-				'Author'	=> '@Bearweb',
-				'TemplateMain'	=> 'page',
-				'TemplateSub'	=> 'error',
-				'Data'		=> $errorMessage,
-				'Binary'	=> '',
-				'JSON'		=> array(),
-				'CreateTime'	=> '1000-01-01 00:00:00',
-				'LastModify'	=> '1000-01-01 00:00:00',
-				'Version'	=> 0,
-				'Status'	=> 'S',
-				'Copyright'	=> 'All rights reserved'
-			);
+			$this->page['Category']		= 'Error';
+			$this->page['TemplateMain']	= 'page';
+			$this->page['TemplateSub']	= 'error';
+			$this->page['CreateTime']	= null;
+			$this->page['LastModify']	= null;
+			$this->page['Copyright']	= 'All rights reserved';
+			$this->page['Status']		= 'S';
+			$this->page['Info']['ErrorInfo'] = $errorMessage;
 			try {
 				$this->useTemplate(false);
 			} catch(Exception $e) {
 				writeLog('Fail to execute error template. Print in plain text.',true);
 				echo $errorMessage;
-				exit;
 			}
 			writeLog('Error template executed!');
 		}
@@ -56,64 +44,31 @@
 		public function useTemplate($sub=true) {
 			//Get template file
 			$template = $sub ? 
-				($this->data['TemplateMain'].'_'.$this->data['TemplateSub']) : 
-				$this->data['TemplateMain'];
+				($this->page['TemplateMain'].'_'.$this->page['TemplateSub']) : 
+				$this->page['TemplateMain'];
 			writeLog('Using template: '.$template);
 			$templateFile = './template/'.$template.'.php';
 			
 			//In case template file missing
 			if (!file_exists($templateFile)) {
-				http_response_code(500);
-				writeLog('Template file is missing.',true);
-				throw new BW_Error( DEBUGMODE ?
-					('Bearweb framework server error: Fail to load template file. Template file: '.$template) :
-					'Bearweb framework server-side error'
-				);
+				throw new BW_ClientError(500,'Template script missed.');
 			}
 			
 			//Execute template
-			try {
-				global $BW;
-				include $templateFile;
-			//Error found in template
+			global $BW;
+			include $templateFile;
+			
 			/*
-			What to do in template
-			1 - Write log with writeLog('description') for critical steps
-			2 - If you need to throw an error (cause by client, ex, bad request)
-				http_response_code(default:500);
-				define('TEMPLATE_NOTEERROR','whatever');
-				throw new BW_Error('description');
-			3 - If you need to throw an error (cause by server, ex, external server fail)
-				http_response_code(default:500);
-				throw new BW_Error('description');
-			4 - When you call some method, such as database operation
-				You do not need to use try/catch, error will be catch here
+			Error handling in template file:
+			If an error needs to be throw,
+			Do NOT use try/catch block, all error handling done by the framework.
+			Using:
+				- BW_ClientError(4xx,'Description.') for client error (eg. bad request). Error info will be printed on client-side.
+				- BW_ServerError(5xx,'Description.') for server error. Error info will be recorded in error_log file. If DEBUGMODE, error info will be printed on client-side as well.
+			DBMS error is automaticly handled by framework. Do NOT using try/catch block for DBMS error.
 			*/
-			} catch(BW_Error $e) {
-				/*
-				NOTICE: BW_ERROR
-				If the error is throw in sub-template, the error will be re-catch in
-				main-template. So, do not process the exception while sub-template,
-				just pass it to mian-template.
-				*/
-				if ($sub)
-					throw new BW_Error($e->getMessage());
 				
-				if (defined('TEMPLATE_NOTEERROR')) {
-					writeLog('BW_Error found in template: '.$e->getMessage());
-				}
-				else {
-					writeLog('BW_Error found in template: '.$e->getMessage(),true);
-					if (http_response_code() == 200)
-						http_response_code(500);
-				}
-				
-				throw new BW_Error( DEBUGMODE ?
-					('Bearweb framework template error: error occured when execute template: '.$e->getMessage()) :
-					'Bearweb framework template error'
-				);
-			}
-			writeLog('Template: '.$template.' executed!');
+			writeLog('Template: "'.$template.'" executed!');
 		}
 		
 		//Inilization and ending process
@@ -123,7 +78,7 @@
 			$this->getSiteConfig($this->site);
 			$this->getClientInfo($this->client);
 			$this->getPage($this->page);
-			$this->processData($this->page,$this->client);
+			$this->processPage($this->page,$this->client);
 		}
 		public function done() {
 			
@@ -375,7 +330,7 @@
 		}
 
 		//Process page data
-		protected function processData($page,$client) {
+		protected function processPage($page,$client) {
 			writeLog('Processing page. Status: '.$page['Status']);
 			
 			//Determine flag
@@ -428,7 +383,7 @@
 			  case 'O': #OK
 			  case 'C': #Construction
 			  case 'D': #Deprecated
-			  case 'S':
+			  case 'S': #Special
 				break;
 			
 			  default:

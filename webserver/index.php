@@ -30,7 +30,7 @@
 			parent::__construct($message,0,null);
 		}
 		public function __toString() {
-			return get_class($this).' - '.$this->message."\n";
+			return get_class($this).' - '.$this->message;
 		}
 		public function getHttpCode() {
 			return $this->httpcode;
@@ -56,20 +56,20 @@
 		ob_clean(); ob_start();
 		http_response_code($e->getHttpCode());
 		writeLog('Task TERMINATED! Due to CLIENT ERROR: '.$e);
-//		$BW->useErrorTemplate($e);
+		$BW->useErrorTemplate($e);
 		
 	} catch(BW_ServerError $e) { #Server error: show error type
 		ob_clean(); ob_start();
 		http_response_code($e->getHttpCode());
 		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
-//		$BW->useErrorTemplate(DEBUGMODE ? $e : get_class($e));
+		$BW->useErrorTemplate(DEBUGMODE ? $e : get_class($e));
 		
 	} catch(Exception $e) { #Unexcepted error
 		ob_clean(); ob_start();
 		http_response_code(500);
-		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e->getMessage(),true);
+		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
 		writeLog('Error debug info: '.print_r($e,true),true);
-//		$BW->useErrorTemplate('BW_InternalServerError');
+		$BW->useErrorTemplate('BW_InternalServerError');
 	}
 	
 	//Process done: record request result
