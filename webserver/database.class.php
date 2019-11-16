@@ -103,18 +103,17 @@
 		}
 		
 		final public function call($procedure,$param,$return=false) {
-			writeLog('Executing procedure: '.$procedure);
+			writeLog('[DBMS]Executing procedure: '.$procedure);
 			
 			//Create SQL command
 			$paramSet = array();
 			foreach ($param as $key => $value)
 				array_push($paramSet,':'.$key);
 			$sendProce = $procedure.'('.implode(',',$paramSet).')';
-			writeLog('Send: '.$sendProce);
 			
 			//Call the procedure
 			$data = parent::call($sendProce,$param,$return);
-			writeLog('Procedure executed.');
+			writeLog('[DBMS]Procedure executed.');
 			return $data;
 		}
 		
