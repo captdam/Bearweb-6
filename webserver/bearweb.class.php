@@ -363,7 +363,7 @@
 			*/
 			
 			$page = $page[0];
-			$page['Info'] = json_decode($page['Info']);
+			$page['Info'] = json_decode($page['Info'],true);
 			writeLog('Page data fetched.');
 		}
 
