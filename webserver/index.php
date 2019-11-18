@@ -49,8 +49,8 @@
 	try {
 		$BW = new Bearweb();
 		$BW->ini();
-		var_dump($BW);
-//		$BW->useTemplate(false);
+//		var_dump($BW);
+		$BW->useTemplate(false);
 		
 	} catch(BW_ClientError $e) { #Client error: show the error detail
 		ob_clean(); ob_start();

@@ -23,18 +23,56 @@
 		//Print error page (using the HTML page template)
 		public function useErrorTemplate($errorMessage) {
 			writeLog('Error found, now handing by error template: '.$errorMessage);
-			$this->page['Category']		= 'Error';
-			$this->page['TemplateMain']	= 'page';
-			$this->page['TemplateSub']	= 'error';
-			$this->page['CreateTime']	= null;
-			$this->page['LastModify']	= null;
-			$this->page['Copyright']	= 'All rights reserved';
-			$this->page['Status']		= 'S';
-			$this->page['Info']['ErrorInfo'] = $errorMessage;
+			
+			//Create dummy BW class for template
+			$this->URL = '@ERROR';
+			/* Using the @ERROR page in BW_Sitemap and BW_Webpage */
+			
+			$this->location = $this->location ?? array(
+				'language' => '',
+				'region' => ''
+			);
+			/* Using user language, or fallback to default language */
+			
+			/*
+			DBMS:
+			If database has been connected, use it; otherwise, raise exception in template-page and print error info in plaintext
+			#Log ID is created if database connected (PK of BW_Transaction). If database is not connected, do not care log ID.
+			Site config:
+			*/
+			
+			$this->site = $this->site ?? array();
+			/* By default, no site config */
+			
+			$this->client = $this->client ?? array(
+				'SessionInfo'	=> array(
+					'IP'	=> $_SERVER['REMOTE_ADDR']
+				)
+			);
+			/* By default, no user info */
+			
+			$this->page = array(
+				'Site'		=> SITENAME,
+				'URL'		=> '@ERROR', #Using error page in BW_Webpage
+				'Category'	=> 'Error',
+				'TemplateMain'	=> 'page', #Using error template
+				'TemplateSub'	=> 'error',
+				'Author'	=> null,
+				'CreateTime'	=> null, #Page has no life time
+				'LastModify'	=> null,
+				'Copyright'	=> null,
+				'Status'	=> 'S', #Special page: SEO: no-index
+				'Info'		=> array(
+					'ErrorInfo'	=> $errorMessage #Passing error info to template
+				)
+			);
+			/* Dummy page info */
+			
+			//Execute error template
 			try {
 				$this->useTemplate(false);
 			} catch(Exception $e) {
-				writeLog('Fail to execute error template. Print in plain text.',true);
+				writeLog('Fail to execute error template. Print in plain text: '.$e,true);
 				echo $errorMessage;
 			}
 			writeLog('Error template executed!');
