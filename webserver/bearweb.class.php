@@ -89,7 +89,7 @@
 			
 			//In case template file missing
 			if (!file_exists($templateFile)) {
-				throw new BW_ClientError(500,'Template script missed.');
+				throw new BW_ServerError(500,'Template script missed.');
 			}
 			
 			//Execute template

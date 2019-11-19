@@ -86,15 +86,15 @@
 		<meta charset="utf-8" />
 		<link href="https://beardle.com/web/favorite.png" rel="icon" type="image/png" />
 		<link href="https://beardle.com/web/style.css" rel="stylesheet" type="text/css" />
-		
-		
-	<!--link rel="alternate" hreflang="lang_code" href="url_of_page" /-->	
-		
-		
+<?php
+	//If "S", SEO no index, do not provide multilingual info
+	if ($_webpage_['Status'] != 'S') foreach ($pageIndex as $x)
+		echo '<link rel="alternate" hreflang="',$x,'" href="/',$x,'/',$BW->URL,'" />';
+?>
 		<script src="https://beardle.com/web/ajax.js"></script>
 		<script src="https://beardle.com/web/md5.js"></script>
 		<script src="https://beardle.com/web/util.js"></script>
-		<script src="https://beardle.com/web/user.js"></script>
+		<!--script src="https://beardle.com/web/user.js"></script-->
 		<script src="https://beardle.com/web/ini.js"></script>
 	</head>
 	<body>
@@ -169,5 +169,4 @@
 			</div>
 		</footer>
 	</body>
-	
 </html>
