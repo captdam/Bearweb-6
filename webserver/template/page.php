@@ -55,6 +55,8 @@
 			'Language'	=> $language.'%'
 		),
 	true);
+	
+	
 
 /********************************* TO WRITE THE TEMPLATE *********************************/
 
@@ -66,6 +68,9 @@
 	
 	//Array of all available language for this page (Get `Language` from `BW_Webpage` by `URL`)
 	define('LANGUAGESET',$pageIndex);
+	
+	//Webpage template data in JSON saved in extra file
+	define('TEMPLATEDATA',json_decode(file_get_contents('./template/'.SITENAME.'_page.json'),true));
 	
 	/*
 	Multilingual in template:
@@ -81,11 +86,17 @@
 	*/
 
 /*****************************************************************************************/
+	
+	//Language used on the page (Those languages are available in the SITENAME_page.json)
+	if (substr(USERLANGUAGE,1,2) == 'en')
+		define('PAGELANG','en');
+	else
+		define('PAGELANG','default');
 ?>
 <!DOCTYPE html>
 <html
-	data-pagestatus="<?= PAGEDATA['Status']; ?>"
-	data-httpstatus="<?= http_response_code(); ?>"
+	data-pagestatus="<?= PAGEDATA['Status'] ?>"
+	data-httpstatus="<?= http_response_code() ?>"
 >
 	<head>
 		<title><?= PAGEDATA['Title']; ?> - Das SAM Club</title>
@@ -116,23 +127,10 @@
 				<input id="search" />
 			</div>
 			<nav id="header_nav">
-<?php if (substr(USERLANGUAGE,1,2) == 'en'): ?>
-				<a href="<?= USERLANGUAGE ?>/">Homepage</a>
-				<a href="<?= USERLANGUAGE ?>/about">About</a>
-				<a href="<?= USERLANGUAGE ?>/activity">Activity</a>
-				<a href="<?= USERLANGUAGE ?>/project">Project</a>
-				<a href="<?= USERLANGUAGE ?>/resource">Resource</a>
-				<a href="http://mc.beardle.com:8123">Bearcraft</a>
-				<a href="<?= USERLANGUAGE ?>/user" id="header_nav_user">Login</a>
-<?php else: ?>
-				<a href="<?= USERLANGUAGE ?>/">主页</a>
-				<a href="<?= USERLANGUAGE ?>/about">关于</a>
-				<a href="<?= USERLANGUAGE ?>/activity">动态</a>
-				<a href="<?= USERLANGUAGE ?>/project">作品</a>
-				<a href="<?= USERLANGUAGE ?>/resource">资源</a>
-				<a href="http://mc.beardle.com:8123">Bearcraft</a>
-				<a href="<?= USERLANGUAGE ?>/user" id="header_nav_user">登录</a>
-<?php endif; ?>
+<?php
+	foreach (TEMPLATEDATA['NavLinks'][PAGELANG] as $name=>$link)
+		echo '<a href="',USERLANGUAGE,$link,'">',$name,'</a>';
+?>
 			</nav>
 		</header>
 		<img id="banner" alt="Banner image" src="/<?= PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>" />
@@ -152,30 +150,29 @@
 			<div class="pltr">
 				<img src="https://beardle.com/web/logo.png" />
 				<div>
-<?php $cprAuthorField = PAGEDATA['Author'] ? '<span class="bearweb_author">'.PAGEDATA['Author'].'</span>' : ''; ?>
-<?php if (substr(USERLANGUAGE,1,2) == 'en'): ?>
-					<p>Das SAM Club (Das Science And Military Club)</p>
-					<p>Admin e-mail: <a href="mailto:admin@beardle.com">admin@beardle.com</a></p>
-					<p>© <?php
-						if (!PAGEDATA['Copyright'])
-							echo trim( $cprAuthorField.' - All rights reserved' ," \-");
-						else if (substr(PAGEDATA['Copyright'],0,2) == 'R=')
-							echo trim( substr(PAGEDATA['Copyright'],2).' - Uploaded by: '.$cprAuthorField ," \-");
-						else
-							echo trim( $cprAuthorField.' ★ This work is licensed under '.PAGEDATA['Copyright'] ," \-");
-					?></p>
-<?php else: ?>
-					<p>Das SAM Club （熊社，物理社与军事社）</p>
-					<p>管理员邮箱： <a href="mailto:admin@beardle.com">admin@beardle.com</a></p>
-					<p>© <?php
-						if (!PAGEDATA['Copyright'])
-							echo trim( $cprAuthorField.' - 保留一切权利' ," \-");
-						else if (substr(PAGEDATA['Copyright'],0,2) == 'R=')
-							echo trim( substr(PAGEDATA['Copyright'],2).' - 由'.$cprAuthorField.'上传' ," \-");
-						else
-							echo trim( $cprAuthorField.' ★ 按照'.PAGEDATA['Copyright'].'协议进行共享' ," \-");
-					?></p>
-<?php endif; ?>
+					<p><?= TEMPLATEDATA['SiteOwner'][PAGELANG] ?></p>
+					<p>Admin e-mail: <a href="mailto:<?= TEMPLATEDATA['AdminEmail'] ?>"><?= TEMPLATEDATA['AdminEmail'] ?></a></p>
+					<p>© 
+<?php
+	$cprAuthorField = PAGEDATA['Author'] ? '<span class="bearweb_author">'.PAGEDATA['Author'].'</span>' : '';
+	if (PAGELANG == 'en') {
+		if (!PAGEDATA['Copyright'])
+			echo trim( $cprAuthorField.' - All rights reserved' ," \-");
+		else if (substr(PAGEDATA['Copyright'],0,2) == 'R=')
+			echo trim( substr(PAGEDATA['Copyright'],2).' - Uploaded by: '.$cprAuthorField ," \-");
+		else
+			echo trim( $cprAuthorField.' ★ This work is licensed under '.PAGEDATA['Copyright'] ," \-");
+	}
+	else {
+		if (!PAGEDATA['Copyright'])
+			echo trim( $cprAuthorField.' - 保留一切权利' ," \-");
+		else if (substr(PAGEDATA['Copyright'],0,2) == 'R=')
+			echo trim( substr(PAGEDATA['Copyright'],2).' - 由'.$cprAuthorField.'上传' ," \-");
+		else
+			echo trim( $cprAuthorField.' ★ 按照'.PAGEDATA['Copyright'].'协议进行共享' ," \-");
+	}
+?>
+					</p>
 				</div>
 			</div>
 		</footer>

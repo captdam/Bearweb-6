@@ -1,0 +1,26 @@
+{	"NavLinks" : {
+		"en" : {
+			"Homepage"	: "/",
+			"About"		: "/about",
+			"Activity"	: "/activity",
+			"Project"	: "/project",
+			"Resource"	: "/resource",
+			"Bearcraft"	: "/bearcraft",
+			"Login"		: "/user"
+		},
+		"default" : {
+			"主页"		: "/",
+			"关于"		: "/about",
+			"动态"		: "/activity",
+			"作品"		: "/project",
+			"资源"		: "/resource",
+			"Bearcraft"	: "/bearcraft",
+			"登录"		: "/user"
+		}
+	},
+	"SiteOwner" : {
+		"en"		: "Das SAM Club (Das Science And Military Club)",
+		"default"	: "Das SAM Club （熊社，物理社与军事社）"
+	},
+	"AdminEmail" : "admin@beardle.com"
+}
