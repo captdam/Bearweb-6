@@ -17,7 +17,7 @@
 	foreach ($pageIndex as &$x)
 		$x = $x['Language'];
 	
-	//Multilingual
+	//Multilingual page content
 	writeLog('Page index size (multilingual): '.count($pageIndex));
 	$userLanguage = $BW->location['language'];
 	$userRegion = $BW->location['region'];
@@ -55,15 +55,14 @@
 			'Language'	=> $language.'%'
 		),
 	true);
-	$webpage = array_merge($webpage[0],$BW->page);
 
 /********************************* TO WRITE THE TEMPLATE *********************************/
 
 	//This CONSTANT contains page data from BW_Sitemap and BW_Webpage
-	define('PAGEDATA',$webpage);
+	define('PAGEDATA',array_merge($webpage[0],$BW->page));
 	
-	//Prefix user's multilingual info (from URL) to links on the page
-	define('USERLANGUAGE',$userLocation);
+	//Prefix user's multilingual info to links on the page
+	define('USERLANGUAGE', $userLocation=='' ? '' : ('/'.$userLocation) );
 	
 	//Array of all available language for this page (Get `Language` from `BW_Webpage` by `URL`)
 	define('LANGUAGESET',$pageIndex);
@@ -73,7 +72,7 @@
 	To support multilingual in template, write HTML code in this way:
 	<?php if (USERLANGUAGE == 'option-language1'): ?> #Language + Region
 		<span>Content in option language 1</span>
-	<?php elseif (substr(USERLANGUAGE,0,2) == 'option-language2'): ?> #Language
+	<?php elseif (substr(USERLANGUAGE,1,2) == 'option-language2'): ?> #Language
 		<span>Content in option language 2</span>
 	<?php else: ?>
 		<span>Content in default language</span>
@@ -117,22 +116,22 @@
 				<input id="search" />
 			</div>
 			<nav id="header_nav">
-<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
-				<a href="/">Homepage</a>
-				<a href="/about">About</a>
-				<a href="/activity">Activity</a>
-				<a href="/project">Project</a>
-				<a href="/resource">Resource</a>
+<?php if (substr(USERLANGUAGE,1,2) == 'en'): ?>
+				<a href="<?= USERLANGUAGE ?>/">Homepage</a>
+				<a href="<?= USERLANGUAGE ?>/about">About</a>
+				<a href="<?= USERLANGUAGE ?>/activity">Activity</a>
+				<a href="<?= USERLANGUAGE ?>/project">Project</a>
+				<a href="<?= USERLANGUAGE ?>/resource">Resource</a>
 				<a href="http://mc.beardle.com:8123">Bearcraft</a>
-				<a href="/user" id="header_nav_user">Login</a>
+				<a href="<?= USERLANGUAGE ?>/user" id="header_nav_user">Login</a>
 <?php else: ?>
-				<a href="/">主页</a>
-				<a href="/about">关于</a>
-				<a href="/activity">动态</a>
-				<a href="/project">作品</a>
-				<a href="/resource">资源</a>
+				<a href="<?= USERLANGUAGE ?>/">主页</a>
+				<a href="<?= USERLANGUAGE ?>/about">关于</a>
+				<a href="<?= USERLANGUAGE ?>/activity">动态</a>
+				<a href="<?= USERLANGUAGE ?>/project">作品</a>
+				<a href="<?= USERLANGUAGE ?>/resource">资源</a>
 				<a href="http://mc.beardle.com:8123">Bearcraft</a>
-				<a href="/user" id="header_nav_user">登录</a>
+				<a href="<?= USERLANGUAGE ?>/user" id="header_nav_user">登录</a>
 <?php endif; ?>
 			</nav>
 		</header>
@@ -154,7 +153,7 @@
 				<img src="https://beardle.com/web/logo.png" />
 				<div>
 <?php $cprAuthorField = PAGEDATA['Author'] ? '<span class="bearweb_author">'.PAGEDATA['Author'].'</span>' : ''; ?>
-<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
+<?php if (substr(USERLANGUAGE,1,2) == 'en'): ?>
 					<p>Das SAM Club (Das Science And Military Club)</p>
 					<p>Admin e-mail: <a href="mailto:admin@beardle.com">admin@beardle.com</a></p>
 					<p>© <?php
