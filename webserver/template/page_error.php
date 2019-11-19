@@ -1,7 +1,7 @@
 <div class="pltr errorpage">
-	<img src="http://beardle.com/web/heihua.jpg" alt="黑化" />
+	<img src="/web/heihua.jpg" alt="黑化" />
 	<div>
-<?php if ($BW->location['language'] == 'en'): ?>
+<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
 		<h2>I'll try to do this better next time...</h2>
 		<p>Something gose wrong on the server. Miss Server and Miss Database have trouble processing this request; therefore, we are not able to access this content.</p>
 		<p>Could you please help Miss Server on this issue? Error info provided below:</p>
@@ -14,17 +14,17 @@
 			<h2>HTTP ERROR - <?= http_response_code() ?></h2>
 		</section>
 		<section style="border-color: #FF0000; background-color: rgba(255,0,0,0.2);">
-			<p><?= $BW->page['Info']['ErrorInfo'] ?></p>
+			<p><?= PAGEDATA['Info']['ErrorInfo'] ?></p>
 			<p>
 				Request ID: <?= TRANSACTIONID ?><br />
-<?php if ($BW->location['language'] == 'en'): ?>
-				<span class="info">(Use this as a reference number if you need help.)</span>
+<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
+				<span class="info">Use this as a reference number if you need help.</span>
 <?php else: ?>
-				<span class="info">（若需要技术支持，请提供此参考号）</span>
+				<span class="info">若需要技术支持，请提供此参考号</span>
 <?php endif; ?>
 			</p>
 		</section>
-<?php if ($BW->location['language'] == 'en'): ?>
+<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
 		<h2>To deal with this:</h2>
 		<p>There are some <del>useful</del> advices:</p>
 		<ul>

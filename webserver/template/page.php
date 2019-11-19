@@ -37,9 +37,9 @@
 		return null;
 	};
 	
-	$language = $determineMultilingual($userLanguage,$pageIndex); #Determine language by user language
+	$language = $determineMultilingual($userLanguage,$pageIndex); #Determine language by user language (in URL)
 	
-	if (!$language) #Fallback: by default language
+	if (!$language) #Fallback: by default language (in config.php)
 		$language = $determineMultilingual(DEFAULT_LANGUAGE[SITENAME],$pageIndex);
 	
 	if (!$language) #Fall back, use any page
@@ -47,7 +47,7 @@
 	
 	//Fetch webpage data
 	writeLog('Fetch page: ('.SITENAME.') - ('.$language.') - '.$BW->URL);
-	$_webpage_ = $this->database->call(
+	$webpage = $this->database->call(
 		'Webpage_get',
 		array(
 			'Site'		=> SITENAME,
@@ -55,41 +55,53 @@
 			'Language'	=> $language.'%'
 		),
 	true);
+	$webpage = array_merge($webpage[0],$BW->page);
+
+/********************************* TO WRITE THE TEMPLATE *********************************/
+
+	//This CONSTANT contains page data from BW_Sitemap and BW_Webpage
+	define('PAGEDATA',$webpage);
 	
-	$_webpage_ = array_merge($_webpage_[0],$BW->page);
+	//Prefix user's multilingual info (from URL) to links on the page
+	define('USERLANGUAGE',$userLocation);
+	
+	//Array of all available language for this page (Get `Language` from `BW_Webpage` by `URL`)
+	define('LANGUAGESET',$pageIndex);
 	
 	/*
 	Multilingual in template:
 	To support multilingual in template, write HTML code in this way:
-	<?php if ($BW->location['language'] == 'option-language1'): ?>
+	<?php if (USERLANGUAGE == 'option-language1'): ?> #Language + Region
 		<span>Content in option language 1</span>
-	<?php else if ($BW->location['language'] == 'option-language2'): ?>
+	<?php elseif (substr(USERLANGUAGE,0,2) == 'option-language2'): ?> #Language
 		<span>Content in option language 2</span>
 	<?php else: ?>
 		<span>Content in default language</span>
 	<?php endif; ?>
 	Do not forget $BW->site['DefaultLanguage'] in stored BW_Config.
 	*/
+
+/*****************************************************************************************/
 ?>
 <!DOCTYPE html>
 <html
-	data-pagestatus="<?= $_webpage_['Status']; ?>"
+	data-pagestatus="<?= PAGEDATA['Status']; ?>"
 	data-httpstatus="<?= http_response_code(); ?>"
 >
 	<head>
-		<title><?= $_webpage_['Title']; ?> - Das SAM Club</title>
-		<meta name="keywords" content="<?= $_webpage_['Keywords'] ?>" />
-		<meta name="description" content="<?= $_webpage_['Description'] ?>" />
-		<meta name="author" content="<?= $_webpage_['Author'] ?>" />
-		<meta name="robots" content="<?= $_webpage_['Status'] == 'S' ? 'noindex' : 'index'; ?>" />
+		<title><?= PAGEDATA['Title']; ?> - Das SAM Club</title>
+		<meta name="keywords" content="<?= PAGEDATA['Keywords'] ?>" />
+		<meta name="description" content="<?= PAGEDATA['Description'] ?>" />
+		<meta name="author" content="<?= PAGEDATA['Author'] ?>" />
+		<meta name="robots" content="<?= PAGEDATA['Status'] == 'S' ? 'noindex' : 'index'; ?>" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="utf-8" />
 		<link href="https://beardle.com/web/favorite.png" rel="icon" type="image/png" />
 		<link href="https://beardle.com/web/style.css" rel="stylesheet" type="text/css" />
 <?php
 	//If "S", SEO no index, do not provide multilingual info
-	if ($_webpage_['Status'] != 'S') foreach ($pageIndex as $x)
-		echo '<link rel="alternate" hreflang="',$x,'" href="/',$x,'/',$BW->URL,'" />';
+	if (PAGEDATA['Status'] != 'S') foreach (LANGUAGESET as $x)
+		echo '<link rel="alternate" hreflang="',$x,'" href="/',$x,'/',PAGEDATA['URL'],'" />';
 ?>
 		<script src="https://beardle.com/web/ajax.js"></script>
 		<script src="https://beardle.com/web/md5.js"></script>
@@ -105,7 +117,7 @@
 				<input id="search" />
 			</div>
 			<nav id="header_nav">
-<?php if ($BW->location['language'] == 'en'): ?>
+<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
 				<a href="/">Homepage</a>
 				<a href="/about">About</a>
 				<a href="/activity">Activity</a>
@@ -124,13 +136,13 @@
 <?php endif; ?>
 			</nav>
 		</header>
-		<img id="banner" alt="Banner image" src="/<?= $_webpage_['Info']['Poster'] ?? 'web/banner.jpg' ?>" />
+		<img id="banner" alt="Banner image" src="/<?= PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>" />
 		<div id="side">
 			<img src="https://beardle.com/web/top.png" alt="Top of page" title="To page top" />
 		</div>
 		<main>
 			<div id="main_title">
-				<h1><?= $_webpage_['Title']; ?></h1>
+				<h1><?= PAGEDATA['Title']; ?></h1>
 			</div>
 			<div id="main_content">
 				<?php $BW->useTemplate(); ?>
@@ -141,28 +153,28 @@
 			<div class="pltr">
 				<img src="https://beardle.com/web/logo.png" />
 				<div>
-<?php $cprAuthorField = $_webpage_['Author'] ? '<span class="bearweb_author">'.$_webpage_['Author'].'</span>' : ''; ?>
-<?php if ($BW->location['language'] == 'en'): ?>
+<?php $cprAuthorField = PAGEDATA['Author'] ? '<span class="bearweb_author">'.PAGEDATA['Author'].'</span>' : ''; ?>
+<?php if (substr(USERLANGUAGE,0,2) == 'en'): ?>
 					<p>Das SAM Club (Das Science And Military Club)</p>
 					<p>Admin e-mail: <a href="mailto:admin@beardle.com">admin@beardle.com</a></p>
 					<p>© <?php
-						if (!$_webpage_['Copyright'])
+						if (!PAGEDATA['Copyright'])
 							echo trim( $cprAuthorField.' - All rights reserved' ," \-");
-						else if (substr($_webpage_['Copyright'],0,2) == 'R=')
-							echo trim( substr($_webpage_['Copyright'],2).' - Uploaded by: '.$cprAuthorField ," \-");
+						else if (substr(PAGEDATA['Copyright'],0,2) == 'R=')
+							echo trim( substr(PAGEDATA['Copyright'],2).' - Uploaded by: '.$cprAuthorField ," \-");
 						else
-							echo trim( $cprAuthorField.' ★ This work is licensed under '.$_webpage_['Copyright'] ," \-");
+							echo trim( $cprAuthorField.' ★ This work is licensed under '.PAGEDATA['Copyright'] ," \-");
 					?></p>
 <?php else: ?>
 					<p>Das SAM Club （熊社，物理社与军事社）</p>
 					<p>管理员邮箱： <a href="mailto:admin@beardle.com">admin@beardle.com</a></p>
 					<p>© <?php
-						if (!$_webpage_['Copyright'])
+						if (!PAGEDATA['Copyright'])
 							echo trim( $cprAuthorField.' - 保留一切权利' ," \-");
-						else if (substr($_webpage_['Copyright'],0,2) == 'R=')
-							echo trim( substr($_webpage_['Copyright'],2).' - 由'.$cprAuthorField.'上传' ," \-");
+						else if (substr(PAGEDATA['Copyright'],0,2) == 'R=')
+							echo trim( substr(PAGEDATA['Copyright'],2).' - 由'.$cprAuthorField.'上传' ," \-");
 						else
-							echo trim( $cprAuthorField.' ★ 按照'.$_webpage_['Copyright'].'协议进行共享' ," \-");
+							echo trim( $cprAuthorField.' ★ 按照'.PAGEDATA['Copyright'].'协议进行共享' ," \-");
 					?></p>
 <?php endif; ?>
 				</div>

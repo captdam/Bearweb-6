@@ -22,6 +22,7 @@
 
 		//Print error page (using the HTML page template)
 		public function useErrorTemplate($errorMessage) {
+			$errorMessage = strval($errorMessage);
 			writeLog('Error found, now handing by error template: '.$errorMessage);
 			
 			//Create dummy BW class for template
@@ -72,7 +73,7 @@
 			try {
 				$this->useTemplate(false);
 			} catch(Exception $e) {
-				writeLog('Fail to execute error template. Print in plain text: '.$e,true);
+				writeLog('Print in plain text. Fail to execute error template: '.$e,true);
 				echo $errorMessage;
 			}
 			writeLog('Error template executed!');
