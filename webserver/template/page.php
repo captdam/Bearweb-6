@@ -7,8 +7,8 @@
 	$pageIndex = $this->database->call(
 		'Webpage_getLanguageIndex',
 		array(
-			'Site'	=> SITENAME,
-			'URL'	=> $BW->URL,
+			'Site'	=> $BW->page['Site'],
+			'URL'	=> $BW->page['URL'],
 		),
 	true);
 	if (!$pageIndex)
@@ -46,11 +46,11 @@
 		$language = '';
 	
 	//Fetch webpage data
-	writeLog('Fetch page: ('.SITENAME.') - ('.$language.') - '.$BW->URL);
+	writeLog('Fetch page: ('.$BW->page['Site'].') - ('.$language.') - '.$BW->URL);
 	$webpage = $this->database->call(
 		'Webpage_get',
 		array(
-			'Site'		=> SITENAME,
+			'Site'		=> $BW->page['Site'],
 			'URL'		=> $BW->URL,
 			'Language'	=> $language.'%'
 		),

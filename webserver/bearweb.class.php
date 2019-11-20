@@ -53,8 +53,8 @@
 			/* By default, no user info */
 			
 			$this->page = array(
-				'Site'		=> SITENAME,
-				'URL'		=> '@ERROR', #Using error page in BW_Webpage
+				'Site'		=> '@ALL', #Using error page in BW_Webpage (All site share the same error template)
+				'URL'		=> '@ERROR',
 				'Category'	=> 'Error',
 				'TemplateMain'	=> 'page', #Using error template
 				'TemplateSub'	=> 'error',
