@@ -1,4 +1,5 @@
-{	"NavLinks" : {
+{	
+	"NavLinks" : {
 		"en" : {
 			"Homepage"	: "/",
 			"About"		: "/about",

@@ -71,7 +71,7 @@
 			
 			//Execute error template
 			try {
-				$this->useTemplate(false);
+				$this->useTemplate();
 			} catch(Exception $e) {
 				writeLog('Print in plain text. Fail to execute error template: '.$e,true);
 				echo $errorMessage;
@@ -80,22 +80,26 @@
 		}
 
 		//Using template file
-		public function useTemplate($sub=true) {
+		public function useTemplate() {
 			//Get template file
-			$template = $sub ? 
-				($this->page['TemplateMain'].'_'.$this->page['TemplateSub']) : 
-				$this->page['TemplateMain'];
-			writeLog('Using template: '.$template);
-			$templateFile = './template/'.$template.'.php';
+			$templateMain = $this->page['TemplateMain'];
+			$templateSub = $this->page['TemplateMain'].'_'.$this->page['TemplateSub'];
+			writeLog('Using template: '.$templateMain.' - '.$templateSub);
 			
-			//In case template file missing
-			if (!file_exists($templateFile)) {
-				throw new BW_ServerError(500,'Template script missed.');
+			$templateMain = './template/'.$templateMain.'.php';
+			$templateSub = './template/'.$templateSub.'.php';
+			
+			//In case template files missed
+			if (!file_exists($templateMain)) {
+				throw new BW_ServerError(500,'Main template script missed.');
+			}
+			if (!file_exists($templateSub)) {
+				throw new BW_ServerError(500,'Sub template script missed.');
 			}
 			
 			//Execute template
 			global $BW;
-			include $templateFile;
+			include $templateMain;
 			
 			/*
 			Error handling in template file:
@@ -107,7 +111,7 @@
 			DBMS error is automaticly handled by framework. Do NOT using try/catch block for DBMS error.
 			*/
 				
-			writeLog('Template: "'.$template.'" executed!');
+			writeLog('Template executed!');
 		}
 		
 		//Inilization and ending process
