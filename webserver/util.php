@@ -157,7 +157,7 @@
 		return false;
 	}
 	
-	//Get the value in $_GET['page']. If invalid, return 1
+	//Get the user input page by $_GET
 	function getInputPage() {
 		if (isset($_GET['page']) && ctype_digit($_GET['page'])) {
 			$cp = intval($_GET['page']);

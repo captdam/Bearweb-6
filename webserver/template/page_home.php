@@ -1,10 +1,9 @@
-<?php $pagedata = json_decode($PAGEDATA['Content'],true); ?>
-
 <div class="main_content_title">
 	<h1><?= $PAGEDATA['Title'] ?></h1>
 	<p><?= $PAGEDATA['Description'] ?></p>
 </div>
 <?php
+	$pagedata = json_decode($PAGEDATA['Content'],true);
 	foreach ( $pagedata['Sections'] as $url=>$info) {
 		/* Syntax: "AbsoluteURL" : {"BgImg","Title","SubTitle","Description"} */
 		echo 
@@ -28,26 +27,24 @@
 </div>
 
 <?php
+	writeLog('Get page list for category '.$TEMPLATEDATA['Category'].'. Size 10, offset 0');
 	$recent = $BW->database->call(
 		'Sitemap_getRecentWebpageIndex',
 		array(
 			'Site'		=> $PAGEDATA['Site'],
 			'Category'	=> $TEMPLATEDATA['Category'],
-			10
+			'Size'		=> 10,
+			'Offset'	=> 0
 		),
 	true);
 	
 	foreach($recent as $page) {
 		echo '<a href="'.$page['URL'].'" class="contentlist" data-bgimage="/',
-			($page['Poster'] ? $page['Poster'] : 'NONE'),
-			'"><div>',
+			($page['Poster'] ?? 'NONE'),'"><div>',
 			'<h2>',$page['Title'],'</h2>',
 			'<p class="content_description">',$page['Description'],'</p>',
 			'<p class="content_keywords">',$page['Keywords'],'</p>',
-			'<p class="content_author">',
-				$page['AuthorNickname'],
-				'<span class="info"> @',$page['Author'],'</span>',
-			'</p>',
+			'<p class="content_author">',$page['Author'],'</p>',
 			'<p class="content_lastmodify">',$page['LastModify'],'</p>',
 			'</div></a>';
 	}
