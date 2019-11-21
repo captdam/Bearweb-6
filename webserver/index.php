@@ -1,5 +1,6 @@
 <?php
-	define('SITENAME',getenv('sitename'));
+//	define('SITENAME',getenv('sitename'));
+	define('SITENAME','captdam.com');
 	date_default_timezone_set('UTC');
 
 	define('TRANSACTIONID',uniqid(SITENAME.'-',true));

@@ -1,0 +1,28 @@
+{
+	"DefaultLanguage" : "zh",
+	"NavLinks" : {
+		"en" : {
+			"Homepage"	: "/",
+			"About"		: "/about",
+			"Blog"		: "/blog",
+			"Notes"		: "/note",
+			"Resource"	: "/resource",
+			"Login"		: "/user"
+		},
+		"default" : {
+			"主页"		: "/",
+			"关于"		: "/about",
+			"博客"		: "/blog",
+			"随笔"		: "/note",
+			"资源"		: "/resource",
+			"登录"		: "/user"
+		}
+	},
+	"SiteOwner" : {
+		"en"		: "Captdam",
+		"default"	: "Captdam （小明）"
+	},
+	"AdminEmail" : "admin@beardle.com",
+	
+	"Category" : "Blog,Note,Resource"
+}

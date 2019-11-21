@@ -1,4 +1,5 @@
-{	
+{
+	"DefaultLanguage" : "zh",
 	"NavLinks" : {
 		"en" : {
 			"Homepage"	: "/",
@@ -23,5 +24,7 @@
 		"en"		: "Das SAM Club (Das Science And Military Club)",
 		"default"	: "Das SAM Club （熊社，物理社与军事社）"
 	},
-	"AdminEmail" : "admin@beardle.com"
+	"AdminEmail" : "admin@beardle.com",
+	
+	"Category" : "Activity,Project,Resource"
 }

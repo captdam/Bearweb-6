@@ -2,13 +2,18 @@
 	//MIME
 	header('Content-Type: text/html');
 	
+	//Get config
+	writeLog('Read page template config file.');
+	$filename = './template/'.SITENAME.'_page.json';
+	$pageConfig = json_decode(file_get_contents($filename),true);
+	
 	//Get all pages with the given sitename and URL
 	writeLog('Fetch page index.');
 	$pageIndex = $this->database->call(
 		'Webpage_getLanguageIndex',
 		array(
 			'Site'	=> $BW->page['Site'],
-			'URL'	=> $BW->page['URL'],
+			'URL'	=> $BW->page['URL']
 		),
 	true);
 	if (!$pageIndex)
@@ -40,7 +45,7 @@
 	$language = $determineMultilingual($userLanguage,$pageIndex); #Determine language by user language (in URL)
 	
 	if (!$language) #Fallback: by default language (in config.php)
-		$language = $determineMultilingual(DEFAULT_LANGUAGE[SITENAME],$pageIndex);
+		$language = $determineMultilingual($pageConfig['DefaultLanguage'],$pageIndex);
 	
 	if (!$language) #Fall back, use any page
 		$language = '';
@@ -70,7 +75,7 @@
 	$LANGUAGESET = $pageIndex;
 	
 	//Webpage template data in JSON saved in extra file
-	$TEMPLATEDATA = json_decode(file_get_contents('./template/'.SITENAME.'_page.json'),true);
+	$TEMPLATEDATA = $pageConfig;
 	
 	/*
 	Multilingual in template:
@@ -84,14 +89,14 @@
 	<?php endif; ?>
 	Do not forget $BW->site['DefaultLanguage'] in stored BW_Config.
 	*/
-
-/*****************************************************************************************/
 	
 	//Language used on the page (Those languages are available in the SITENAME_page.json)
 	if (substr($USERLANGUAGE,1,2) == 'en')
 		$PAGELANG = 'en';
 	else
 		$PAGELANG = 'default';
+
+/*****************************************************************************************/
 ?>
 <!DOCTYPE html>
 <html
