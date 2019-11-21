@@ -387,11 +387,23 @@
 					throw new BW_WebServerError(500,'Redirect info missed.');
 				}
 				
-				$redirect = $page['Info']['Redirect'];
-				http_response_code($page['Status'] == 'R' ? 301 : 302);
+				$urlLocation = trim($this->location['language'].'-'.$this->location['region'],'-');
+				if ($urlLocation != '') $urlLocation .= '/';
+				$redirect = $urlLocation.$page['Info']['Redirect'];
+				
 				header('Location: /'.$redirect);
-				writeLog('Page redirect to: '.$redirect);
+				throw new BW_ClientError(
+					$page['Status'] == 'R' ? 301 : 302,
+					'Page redirected to: '.$redirect
+				);
 				break;
+				
+				/*
+				Special case:
+				This is not an error.
+				Use BW_ClientError so no error log will be writen and template will not be executed.
+				The template in BW_Sitemap will not be execute; but error template will be executed.
+				*/
 			
 			  case 'A': #Auth need (privilege)
 				if (

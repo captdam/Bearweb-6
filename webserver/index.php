@@ -50,7 +50,6 @@
 	try {
 		$BW = new Bearweb();
 		$BW->ini();
-//		var_dump($BW);
 		$BW->useTemplate();
 		
 	} catch(BW_ClientError $e) { #Client error: show the error detail
