@@ -21,6 +21,8 @@
 	
 	foreach ($pageIndex as &$x)
 		$x = $x['Language'];
+	unset($x);
+	
 	
 	//Multilingual page content
 	writeLog('Page index size (multilingual): '.count($pageIndex));
@@ -36,6 +38,7 @@
 		//Partial matched
 		foreach($pageIndex as &$x) #$pageIndex is copied into the function, and modified by reference here
 			$x = substr($x,0,2);
+		unset($x);
 		if (in_array( substr($userLanguage,0,2),$pageIndex ))
 			return substr($userLanguage,0,2);
 		
@@ -111,18 +114,18 @@
 		<meta name="robots" content="<?= $PAGEDATA['Status'] == 'S' ? 'noindex' : 'index'; ?>" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="utf-8" />
-		<link href="https://beardle.com/web/favorite.png" rel="icon" type="image/png" />
-		<link href="https://beardle.com/web/style.css" rel="stylesheet" type="text/css" />
+		<link href="/web/favorite.png" rel="icon" type="image/png" />
+		<link href="/web/style.css" rel="stylesheet" type="text/css" />
 <?php
 	//If "S", SEO no index, do not provide multilingual info
 	if ($PAGEDATA['Status'] != 'S') foreach ($LANGUAGESET as $x)
 		echo '<link rel="alternate" hreflang="',$x,'" href="/',$x,'/',$PAGEDATA['URL'],'" />';
 ?>
-		<script src="https://beardle.com/web/ajax.js"></script>
-		<script src="https://beardle.com/web/md5.js"></script>
-		<script src="https://beardle.com/web/util.js"></script>
-		<!--script src="https://beardle.com/web/user.js"></script-->
-		<script src="https://beardle.com/web/ini.js"></script>
+		<script src="/web/ajax.js"></script>
+		<script src="/web/md5.js"></script>
+		<script src="/web/util.js"></script>
+		<!--script src="/web/user.js"></script-->
+		<script src="/web/ini.js"></script>
 	</head>
 	<body>
 		<header>
@@ -136,11 +139,12 @@
 	foreach ($TEMPLATEDATA['NavLinks'][$PAGELANG] as $name=>$link)
 		echo '<a href="',$USERLANGUAGE,$link,'">',$name,'</a>';
 ?>
+				<span id="header_nav_international" class="dropdown">🌍</span>
 			</nav>
 		</header>
 		<img id="banner" alt="Banner image" src="/<?= $PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>" />
 		<div id="side">
-			<img src="https://beardle.com/web/top.png" alt="Top of page" title="To page top" />
+			<img src="/web/top.png" alt="Top of page" title="To page top" />
 		</div>
 		<main>
 			<div id="main_title">
@@ -153,7 +157,7 @@
 		
 		<footer>
 			<div class="pltr">
-				<img src="https://beardle.com/web/logo.png" />
+				<img src="/web/logo.png" />
 				<div>
 					<p><?= $TEMPLATEDATA['SiteOwner'][$PAGELANG] ?></p>
 					<p>Admin e-mail: <a href="mailto:<?= $TEMPLATEDATA['AdminEmail'] ?>"><?= $TEMPLATEDATA['AdminEmail'] ?></a></p>
@@ -179,6 +183,16 @@
 ?>
 					</p>
 				</div>
+			</div>
+			<div>
+<?php
+	switch ($PAGELANG) {
+		case 'en':	echo '<span>🌍This page is also avaliable in:</span>'; break;
+		default:	echo '<span>🌍本页面亦适用于这些语言：</span>';
+	}
+	foreach ($LANGUAGESET as $x)
+		echo '<a hreflang="',$x,'" href="/',$x,'/',$PAGEDATA['URL'],'">',$x,'</a> ';
+?>
 			</div>
 		</footer>
 	</body>
