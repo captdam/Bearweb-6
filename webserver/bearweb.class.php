@@ -116,8 +116,8 @@
 		
 		//Inilization and ending process
 		public function ini() {
-			$this->smartURL($this->URL,$this->location);
 			$this->connectDatabase($this->database);
+			$this->smartURL($this->URL,$this->location);
 			$this->getSiteConfig($this->site);
 			$this->getClientInfo($this->client);
 			$this->getPage($this->page);
@@ -138,6 +138,40 @@
 			
 			$this->database = null; //Destruct: commit
 			writeLog('Execution time: '.$timeUsed.'ns');
+		}
+
+		//Connect to database
+		protected function connectDatabase(&$db) {
+			
+			//Connect to DBMS
+			writeLog('Connecting to database.');
+			$db = new BearwebDatabase();
+			writeLog('Database connected!');
+			
+			//Init transaction log
+			$this->logID = $db->call(
+				'Transaction_new',
+				array('TransactionID' => TRANSACTIONID),
+			true)[0]['RecordID'];
+			writeLog('Transaction log record ID: '.$this->logID);
+		}
+
+		//Get site setting from config database
+		protected function getSiteConfig(&$site) {
+			writeLog('Getting site config.');
+			
+			//Get site configs from db
+			$site = array();
+			$config = $this->database->call('Config_get',array('sitename'=>SITENAME),true);
+			foreach ($config as $x)
+				$site[$x['Key']] = $x['Value'];
+			writeLog('Site config fetched!');
+			
+			//Site closed? (Column 'Closed' exists and not empty)
+			if (array_key_exists('Closed',$site) && $site['Closed']) { #Use array_key_exists because it can be null
+				throw new BW_ClientError(503,'Server closed: '.$config['Closed']); #Special case: This is a server error; use BW_ClientError to provide info to client.
+			}
+			writeLog('Site is ready.');
 		}
 
 		//Process request URL
@@ -179,40 +213,6 @@
 			$url = trim($url,'/');
 			writeLog('User language: '.$location['language'].'; User region: '.$location['region']);
 			
-		}
-
-		//Connect to database
-		protected function connectDatabase(&$db) {
-			
-			//Connect to DBMS
-			writeLog('Connecting to database.');
-			$db = new BearwebDatabase();
-			writeLog('Database connected!');
-			
-			//Init transaction log
-			$this->logID = $db->call(
-				'Transaction_new',
-				array('TransactionID' => TRANSACTIONID),
-			true)[0]['RecordID'];
-			writeLog('Transaction log record ID: '.$this->logID);
-		}
-
-		//Get site setting from config database
-		protected function getSiteConfig(&$site) {
-			writeLog('Getting site config.');
-			
-			//Get site configs from db
-			$site = array();
-			$config = $this->database->call('Config_get',array('sitename'=>SITENAME),true);
-			foreach ($config as $x)
-				$site[$x['Key']] = $x['Value'];
-			writeLog('Site config fetched!');
-			
-			//Site closed? (Column 'Closed' exists and not empty)
-			if (array_key_exists('Closed',$site) && $site['Closed']) { #Use array_key_exists because it can be null
-				throw new BW_ClientError(503,'Server closed: '.$config['Closed']); #Special case: This is a server error; use BW_ClientError to provide info to client.
-			}
-			writeLog('Site is ready.');
 		}
 
 		//Get client info
@@ -297,9 +297,9 @@
 				//User group is an array
 				$user = $user[0];
 				$user['Group'] = explode(',',$user['Group']);
-				foreach ($user['Group'] as &$x) {
+				foreach ($user['Group'] as &$x)
 					$x = trim($x);
-				}
+				unset($x);
 				
 				//Append user info
 				$client['UserInfo'] = $user;
