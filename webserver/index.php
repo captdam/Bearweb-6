@@ -15,7 +15,7 @@
 	require_once './bearweb.class.php';
 	require_once './database.class.php';
 	require_once './util.php';
-	require_once './conoha.class.php';
+	require_once './objectstorage.class.php';
 	
 	//Setup error handler
 	set_error_handler(function($errNo,$errStr,$errFile,$errLine){
@@ -41,6 +41,7 @@
 	class BW_ServerError extends BW_Error {}
 	class BW_WebServerError extends BW_ServerError{}
 	class BW_DatabaseServerError extends BW_ServerError{}
+	class BW_StorageServerError extends BW_ServerError{}
 	
 	class BW_ClientError extends BW_Error {}
 	
@@ -68,8 +69,14 @@
 		ob_clean(); ob_start();
 		http_response_code(500);
 		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
-		writeLog('Error debug info: '.print_r($e,true),true);
-		$BW->useErrorTemplate('BW_InternalServerError');
+		$BW->useErrorTemplate('BW_InternalServerError'.$e); ////////////////////////////
+		try {
+			$dumpfile = './log/'.date('y-m-d').'-'.TRANSACTIONID.'.dump';
+			file_put_contents($dumpfile,print_r($e,true));
+			writeLog('BW memory dumped: '.$dumpfile);
+		} catch(Exception $e) {
+			/* If fail, ignore */
+		}
 	}
 	
 	//Process done: record request result
