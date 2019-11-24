@@ -12,7 +12,8 @@
 	define('OS_USERNAME',	'x');
 	define('OS_PASSWORD',	'x');
 	define('OS_TENANT',	'x');
-	define('OS_CONTAINER',	'Bearweb');
+	define('OS_PRIVATECONTAINER',	'Bearweb');
+	define('OS_PUBLICCONTAINER',	'BearwebPublic');
 	
 	//Security
 	define('FORCEHTTPS',	true);
