@@ -26,32 +26,8 @@
 	
 	//Multilingual page content
 	writeLog('Page index size (multilingual): '.count($pageIndex));
-	$userLanguage = $BW->location['language'];
-	$userRegion = $BW->location['region'];
-	$userLocation = trim($userLanguage.'-'.$userRegion,'-');
-	
-	$determineMultilingual = function($userLanguage,$pageIndex) {
-		//100% matched
-		if (in_array($userLanguage,$pageIndex))
-			return $userLanguage;
-		
-		//Partial matched
-		foreach($pageIndex as &$x) #$pageIndex is copied into the function, and modified by reference here
-			$x = substr($x,0,2);
-		unset($x);
-		if (in_array( substr($userLanguage,0,2),$pageIndex ))
-			return substr($userLanguage,0,2);
-		
-		return null;
-	};
-	
-	$language = $determineMultilingual($userLanguage,$pageIndex); #Determine language by user language (in URL)
-	
-	if (!$language) #Fallback: by default language (in config.php)
-		$language = $determineMultilingual($pageConfig['DefaultLanguage'],$pageIndex);
-	
-	if (!$language) #Fall back, use any page
-		$language = '';
+	$userLocation = trim($BW->location['language'].'-'.$BW->location['region'],'-');
+	$language = chooseLanguage($pageIndex,$userLocation,$pageConfig['DefaultLanguage']);
 	
 	//Fetch webpage data
 	writeLog('Fetch page: ('.$BW->page['Site'].') - ('.$language.') - '.$BW->URL);
@@ -60,7 +36,7 @@
 		array(
 			'Site'		=> $BW->page['Site'],
 			'URL'		=> $BW->URL,
-			'Language'	=> $language.'%'
+			'Language'	=> $language
 		),
 	true);
 	

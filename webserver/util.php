@@ -167,4 +167,24 @@
 		else $cp = 1;
 		return $cp;
 	}
+	
+	//Given a list of avaliable language, return the bet match
+	function chooseLanguage($list,$prefer,$pageDefault=null) {
+		//100% matched
+		if (in_array($prefer,$list))
+			return $prefer;
+		
+		//Partial matched (only cares language, DNC region)
+		foreach($list as $x)
+			if (substr($prefer,0,2) == substr($x,0,2)) return $x; #Choose the first match
+		
+		//No match on perfer language, use second perfer (should be page default language)
+		if ($pageDefault) {
+			if (in_array($pageDefault,$list)) return $pageDefault;
+			foreach ($list as $x) if (substr($pageDefault,0,2) == substr($x,0,2)) return $x;
+		}
+		
+		//No match, return any one in the list
+		return $list[0];
+	}
 ?>

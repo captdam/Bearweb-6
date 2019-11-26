@@ -17,7 +17,7 @@
 ?>
 
 <div class="main_content_title">
-<?php if (substr($USERLANGUAGE,1,2) == 'en'): ?>
+<?php if ($PAGELANG == 'en'): ?>
 	<h1>Recent update</h1>
 	<p>There are some updates since your last visit:</p>
 <?php else: ?>
@@ -38,14 +38,40 @@
 		),
 	true);
 	
-	foreach($recent as $page) {
-		echo '<a href="'.$page['URL'].'" class="contentlist" data-bgimage="/',
-			($page['Poster'] ?? 'NONE'),'"><div>',
-			'<h2>',$page['Title'],'</h2>',
-			'<p class="content_description">',$page['Description'],'</p>',
-			'<p class="content_keywords">',$page['Keywords'],'</p>',
-			'<p class="content_author">',$page['Author'],'</p>',
-			'<p class="content_lastmodify">',$page['LastModify'],'</p>',
-			'</div></a>';
+	//Re-format page index by URL then Language
+	$urlSet = array();
+	$urlLang = array();
+	foreach($recent as $x) {
+		//URL->Language->Info: Contains pages info
+		if (!isset( $urlSet[ $x['URL'] ] )) $urlSet[ $x['URL'] ] = array();
+		$urlSet[ $x['URL'] ][ $x['Language'] ] = array(
+			'Poster'	=> $x['Poster'] ?? 'NULL',
+			'Title'		=> $x['Title'],
+			'Description'	=> $x['Description'],
+			'Keywords'	=> $x['Keywords'],
+			'Author'	=> $x['Author'],
+			'LastModify'	=> $x['LastModify']
+		);
+		//URL->Language: For util function chooseLanguage()
+		if (!isset( $urlLang[ $x['URL'] ] )) $urlLang[ $x['URL'] ] = array();
+		array_push( $urlLang[$x['URL']] ,$x['Language'] );
+	}
+	
+	//Print list, one for each URL
+	foreach($urlLang as $url => $langIndex) {
+		$lang = chooseLanguage($langIndex,$PAGELANG,$TEMPLATEDATA['DefaultLanguage']); #Language in the index best match user language
+		echo '<a href="/',$lang,'/',$url,'" class="contentlist" data-bgimage="/',
+			$urlSet[$url][$lang]['Poster'],'"><div>',
+			'<h2>',$urlSet[$url][$lang]['Title'],'</h2>',
+			'<p class="content_description">',$urlSet[$url][$lang]['Description'],'</p>',
+			'<p class="content_keywords">',$urlSet[$url][$lang]['Keywords'],'</p>',
+			'<p class="content_author">',$urlSet[$url][$lang]['Author'],'</p>',
+			'<p class="content_lastmodify">',$urlSet[$url][$lang]['LastModify'],'</p>';
+		if (count($urlLang[$url]) > 1) { #Multiple language avaliable for a URL
+			echo '<p class="content_multilingual"> 🌍';
+			foreach ($urlLang[$url] as $x) echo '<a href="/',$x,'/',$url,'">',$x,'</a>';
+			echo '</p>';
+		}
+		echo '</div></a>';
 	}
 ?>

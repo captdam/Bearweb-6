@@ -15,6 +15,9 @@
 	<p>修改：<?= $PAGEDATA['LastModify'] ?></p>
 	<p>发布：<?= $PAGEDATA['CreateTime'] ?></p>
 <?php endif; ?>
+	<p class="content_multilingual"> 🌍
+	<?php foreach ($LANGUAGESET as $x) echo '<a href="/',$x,'/',$PAGEDATA['URL'],'">',$x,'</a>'; ?>
+	</p>
 </div>
 
 <?php
