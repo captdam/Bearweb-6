@@ -144,7 +144,7 @@ CREATE TABLE `BW_Transaction` (
   KEY `BW_Transaction__SIDLink` (`SessionID`),
   CONSTRAINT `BW_Transaction__SIDLink` FOREIGN KEY (`SessionID`) REFERENCES `BW_Session` (`SessionID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `BW_Transaction__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=875 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+) ENGINE=InnoDB AUTO_INCREMENT=1860 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -257,6 +257,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Config_get`(
 )
 BEGIN
 	SELECT * FROM BW_Config C WHERE C.Site = '' OR C.Site = in_sitename;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Object_get` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Object_get`(
+	IN in_site		VARCHAR(45),
+    IN in_url		VARCHAR(255)
+)
+BEGIN
+	SELECT * FROM BW_Object WHERE (Site = in_site OR Site = '@ALL') AND URL = in_url;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -417,7 +439,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Sitemap_get`(
 )
 BEGIN
 	SELECT * FROM BW_Sitemap WHERE
-		(in_site IS NULL OR Site = in_site) AND
+		(in_site IS NULL OR Site = in_site OR Site = '@ALL') AND
         (in_url IS NULL OR URL LIKE in_url) AND
         (in_category IS NULL OR FIND_IN_SET( CONCAT(',',Category,',') , CONCAT(',',in_category,',') ) ) AND
         (in_status IS NULL OR FIND_IN_SET(Site,in_status) )
@@ -441,29 +463,38 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Sitemap_getRecentWebpageIndex`(
 	IN in_site		VARCHAR(45),
 	IN in_category	VARCHAR(255),
-	IN in_size		INT
+	IN in_size		INT,
+    In in_offset	INT
 )
 BEGIN
 	SELECT
-		S.URL,
-		W.Title,
-		S.Category,
-		W.Keywords,
-		W.Description,
-		S.Author,
-		(SELECT U.Nickname FROM BW_User U WHERE U.Username = S.Author) AS AuthorNickname,
-		S.LastModify,
-		S.`Status`,
-		S.`Info`->>'$.poster' AS Poster
-	FROM
-		BW_Sitemap S JOIN BW_Webpage W
-		ON (S.Site = W.Site AND S.URL = W.URL)
-	WHERE
-		S.Site = in_site AND
-		S.`Status` NOT IN ('A','P') AND
-		FIND_IN_SET(S.Category,in_category)
-	ORDER BY S.LastModify DESC
-	LIMIT in_size;
+		Web.URL,
+        Web.`Language`,
+		Web.Title,
+		Map.Category,
+		Web.Keywords,
+		Web.Description,
+		Map.Author,
+		Map.LastModify,
+		Map.`Status`,
+		Map.`Info`->>'$.poster' AS Poster
+	/* Step 2 - Get page index from all language those are recent */
+	FROM BW_Webpage Web RIGHT JOIN BW_Sitemap Map
+    ON (Web.Site = Map.Site AND Web.URL = Map.URL)
+    WHERE (Web.Site = in_site OR Web.Site = '@ALL') AND Web.URL IN (
+		SELECT URL FROM (
+			/* Step 1 - Get recent pages from BW_Sitemap */
+			SELECT DISTINCT S.URL, S.LastModify
+            FROM BW_Sitemap S RIGHT JOIN BW_Webpage W
+            ON (S.Site = W.Site AND S.URL = W.URL)
+            WHERE
+				(S.Site = in_site OR S.Site = '@ALL') AND
+				S.`Status` NOT IN ('A','P') AND
+				FIND_IN_SET(S.Category,in_category)
+			ORDER BY S.LastModify DESC
+            LIMIT in_size OFFSET in_offset
+		) AS Site
+	);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -626,10 +657,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Webpage_get`(
     IN in_language	VARCHAR(5)
 )
 BEGIN
-	SELECT * FROM BW_Webpage
-    WHERE Site = in_site AND URL = in_url AND `Language` LIKE in_language
-    ORDER BY `Language` /* Select best match (eg. input = en, en should be selected instead of en-ca or en-us) */
-    LIMIT 1;
+	SELECT * FROM BW_Webpage WHERE (Site = in_site OR Site = '@ALL') AND URL = in_url AND `Language` = in_language;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -651,7 +679,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Webpage_getLanguageIndex`(
     IN in_url	VARCHAR(255)
 )
 BEGIN
-	SELECT `Language` FROM BW_Webpage WHERE Site = in_site AND URL = in_url;
+	SELECT `Language` FROM BW_Webpage WHERE (Site = in_site OR Site = '@ALL') AND URL = in_url;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -668,4 +696,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-22  2:03:57
+-- Dump completed on 2019-11-26 10:13:00
