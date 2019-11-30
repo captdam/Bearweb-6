@@ -1,9 +1,10 @@
 'use strict';
 
-//Get cookie by name
+//Cookie util
 class Cookie {
 	constructor() {
 		this.cookie = new Array();
+		this.refresh();
 	}
 	get(name) {
 		this.refresh();
@@ -19,11 +20,47 @@ class Cookie {
 		var orginal = document.cookie.split(/\;s*/);
 		var size = orginal.length;
 		for (var i = 0; i < size; i++) {
-			this.cookie[orginal[i].split('=')[0]] = orginal[i].split('=')[1];
+			this.cookie[ orginal[i].split('=')[0].trim() ] = decodeURIComponent(orginal[i].split('=')[1].trim());
 		}
 	}
 }
 var cookie = new Cookie();
+
+//Modal
+function modal(content) {
+	var modalContainer = document.getElementById('modal_container');
+	var modal = document.getElementById('modal');
+	var modalContent = document.getElementById('modal_content');
+	
+	//Close modal
+	if (typeof content == 'undefined') {
+		modal.style.top = '-100%';
+		setTimeout( () => modalContainer.style.background = 'transparent', 400);
+		setTimeout( () => modalContent.innerHTML = '', 1000);
+		setTimeout( () => modalContainer.style.display = 'none', 1400);
+	}
+	
+	//Display modal
+	else {
+		modalContent.innerHTML = content;
+		setTimeout( () => modalContainer.style.background = 'rgba(0,0,0,0.7)', 50);
+		modalContainer.style.display = 'block';
+		setTimeout( () => modal.style.top = '100px', 400);
+	}
+	
+}
+function modalFormat(contents) {
+	var display = '';
+	contents.forEach((x,i) => { //First element: i = 0 => Title
+		if (i)
+			display += '<p>' + x + '</p>';
+		else
+			display += '<h2>' + x + '</h2>';
+	});
+	modal(display);
+}
+
+
 
 //Scroll page with animation
 function scroll(toLocation,stepCount,stepTime) {

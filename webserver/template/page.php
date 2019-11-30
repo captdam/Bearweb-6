@@ -81,6 +81,8 @@
 <html
 	data-pagestatus="<?= $PAGEDATA['Status'] ?>"
 	data-httpstatus="<?= http_response_code() ?>"
+	lang="<?= $PAGEDATA['Language'] ?>"
+	data-urlprefix="<?= $USERLANGUAGE ?>"
 >
 	<head>
 		<title><?= $PAGEDATA['Title']; ?> - Das SAM Club</title>
@@ -171,5 +173,10 @@
 ?>
 			</div>
 		</footer>
+		
+		<div id="modal_container" onclick="modal()"><div id="modal">
+			<div id="modal_close">╳ （Close）</div>
+			<div id="modal_content" onclick="event.stopPropagation()"></div>
+		</div></div>
 	</body>
 </html>

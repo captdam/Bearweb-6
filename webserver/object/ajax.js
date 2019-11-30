@@ -1,16 +1,59 @@
-function ajax(method,url,post,callback) {
+//Native AJAX function
+function ajax(method,url,post) {
 	'use strict';
-	var body = '';
+	
+	var request = '';
 	for (var key in post) {
-		body += key + '=' + encodeURIComponent(post[key]) + '&';
+		request += key + '=' + encodeURIComponent(post[key]) + '&';
 	}
-	var xhr = new XMLHttpRequest();
-	xhr.open(method,url);
-	xhr.overrideMimeType('application/json');
-	xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
-	xhr.onload = function() {
-		callback(this.status,JSON.parse(this.responseText));
-	}
-	xhr.withCredentials = true;
-	xhr.send(body.slice(0,-1));
+	request = request.slice(0,-1);
+	
+	return new Promise( function(resolve,reject) {
+		var xhr = new XMLHttpRequest();
+		xhr.open(method,url);
+		xhr.overrideMimeType('application/json');
+		xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+		xhr.withCredentials = true;
+		
+		//Promise only accepts one param
+		//Use array to cast multi params into one param
+		
+		xhr.onload = () => resolve([xhr.status,xhr.response]);
+		
+		xhr.onerror = () => reject([0,'XHR error']);
+		xhr.onabort = () => reject([0,'XHR abort']);
+		xhr.ontimeout = () => reject([0,'XHR timeout']);
+		
+		xhr.send(request);
+	} );
+}
+
+//AJAX to API, return must be JSON
+function ajaxAPI(method,url,post) {
+	'use strict';
+	
+	return new Promise( (API_OK,API_FAIL) => {
+		ajax(method,url,post).then(
+			([status,response]) => { //XHR success
+			
+				//API success => return JSON
+				try {
+					API_OK([ status, JSON.parse(response) ]); //API returns JSON
+					return;
+				} catch(e) {
+					if (!(e instanceof SyntaxError)) throw e;
+				}
+				
+				//API fail => return HTML contains error info
+				var error = /BW_\w+Error - [^\<]+/.exec(response);
+				if (error)
+					API_FAIL([status,error[0]]); //BW error template info in response
+				else
+					API_FAIL([status,response]); //Raw response
+			},
+			([status,response]) => { //XML fail
+				API_FAIL([status,response]);
+			}
+		);
+	} );
 }
