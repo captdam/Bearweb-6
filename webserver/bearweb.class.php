@@ -116,10 +116,13 @@
 		
 		//Inilization and ending process
 		public function ini() {
+			//Site is ready
 			$this->connectDatabase($this->database);
-			$this->smartURL($this->URL,$this->location);
 			$this->getSiteConfig($this->site);
+			//Then, check request
+			$this->smartURL($this->URL,$this->location);
 			$this->getClientInfo($this->client);
+			//Then, process request
 			$this->getPage($this->page);
 			$this->processPage($this->page,$this->client);
 		}
@@ -225,6 +228,21 @@
 			);
 			
 			/*
+			$BW->client
+				SessionInfo	(Everyone)
+					IP		User IPv4
+					SessionID	SID, expire after 1 hrs after last active
+					CreateTime	Create time
+					LastUsed	Last active
+					Expire		0, expired session shouldn't be returned
+					Username	Username or NULL
+					JSKey		48-byte random (64 char base64), cookie
+					Salt		48-byte random (64 char base64), cookie
+				UserInfo	(User only)
+					*		An array, SELECT * FROM BW_User
+			*/
+			
+			/*
 			BW_Session table restriction:
 			PK are SessionID and CreateTime. The table contains all active sessions and expired old sesions.
 			Application logic restriction:
@@ -243,7 +261,7 @@
 				if ( !isset($_COOKIE['SessionID']) ) goto New_user;
 				if ( !checkRegex('Token',$_COOKIE['SessionID']) ) goto New_user;
 				
-				//Check session database
+				//Check session database - fake SID
 				$session = $this->database->call(
 					'Session_get',
 					array('SessionID' => $_COOKIE['SessionID']),
@@ -261,13 +279,13 @@
 					array('SessionID'=>$session['SessionID'])
 				);
 				
-				//Log - returned
+				//Log - returned user
 				$this->database->call(
 					'Transaction_bindClientInfo',
 					array(
 						'RecordID'	=> $this->logID,
 						'SessionID'	=> $session['SessionID'],
-						'Username'	=> $session['Username'],
+						'Username'	=> $session['Username'], #Could be NULL
 						'IP'		=> $client['SessionInfo']['IP']
 					)
 				);
@@ -301,9 +319,13 @@
 					$x = trim($x);
 				unset($x);
 				
-				//Append user info
+				//Append user info in client info
 				$client['UserInfo'] = $user;
 				writeLog('Returned user: Member. Username: '.$client['UserInfo']['Username']);
+				
+				//Update user last active
+				$this->database->call('User_active',array('Username'=>$session['Username']));
+				
 				return;
 			
 			//User has no valid session ID

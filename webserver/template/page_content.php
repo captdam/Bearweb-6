@@ -4,7 +4,7 @@
 </div>
 
 <div>
-<?php if (substr($USERLANGUAGE,1,2) == 'en'): ?>
+<?php if ($PAGELANG == 'en'): ?>
 	<p>Description: <?= $PAGEDATA['Description'] ?></p>
 	<p class="content_keywords"><?= $PAGEDATA['Keywords'] ?></p>
 	<p>Last Modify: <?= $PAGEDATA['LastModify'] ?></p>

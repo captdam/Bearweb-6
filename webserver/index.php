@@ -1,6 +1,6 @@
 <?php
 //	define('SITENAME',getenv('sitename'));
-	define('SITENAME','captdam.com');
+	define('SITENAME','beardle.com');
 	date_default_timezone_set('UTC');
 
 	define('TRANSACTIONID',uniqid(SITENAME.'-',true));

@@ -1,7 +1,7 @@
 <div class="pltr errorpage">
 	<img src="/web/heihua.jpg" alt="黑化" />
 	<div>
-<?php if (substr($USERLANGUAGE,1,2) == 'en'): ?>
+<?php if ($PAGELANG == 'en'): ?>
 		<h2>I'll try to do this better next time...</h2>
 		<p>Something gose wrong on the server. Miss Server and Miss Database have trouble processing this request; therefore, we are not able to access this content.</p>
 		<p>Could you please help Miss Server on this issue? Error info provided below:</p>
@@ -17,14 +17,14 @@
 			<p><?= $PAGEDATA['Info']['ErrorInfo'] ?></p>
 			<p>
 				Request ID: <?= TRANSACTIONID ?><br />
-<?php if (substr($USERLANGUAGE,1,2) == 'en'): ?>
+<?php if ($PAGELANG == 'en'): ?>
 				<span class="info">Use this as a reference number if you need help.</span>
 <?php else: ?>
 				<span class="info">若需要技术支持，请提供此参考号</span>
 <?php endif; ?>
 			</p>
 		</section>
-<?php if (substr($USERLANGUAGE,1,2) == 'en'): ?>
+<?php if ($PAGELANG == 'en'): ?>
 		<h2>To deal with this:</h2>
 		<p>There are some <del>useful</del> advices:</p>
 		<ul>
