@@ -144,10 +144,9 @@
 	function checkRegex($type,$string) {
 		$check = array(
 			'URL'		=> '/^[A-Za-z0-9_\-\:\/\.]{0,128}$/',
-//			'SearchEngine'	=> '/spider|bot/i',
-//			'Username'	=> '/^[A-Za-z0-9]{2,16}$/',
-//			'Password'	=> '/^[a-f0-9]{32}$/',
-//			'Nickname'	=> '/^[^~!@#$%^&*()_\+`\-=\|\\\\{\}\[\];:"\',.\/\<\>\?\s]{2,16}$/u',
+			'Username'	=> '/^[A-Za-z0-9]{2,16}$/',
+			'MD5'		=> '/^[a-f0-9]{32}$/',
+			'Nickname'	=> '/^[^~!@#$%^&*()_\+`\-=\|\\\\{\}\[\];:"\',.\/\<\>\?\s]{2,16}$/u',
 			'Token'		=> '/^[A-Za-z0-9\/\+]{64}$/'
 		);
 		if (!isset($check[$type]))

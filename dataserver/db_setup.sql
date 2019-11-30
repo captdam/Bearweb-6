@@ -70,7 +70,7 @@ CREATE TABLE `BW_Session` (
   `CreateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `LastUsed` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Expire` tinyint(4) NOT NULL DEFAULT '0',
-  `Username` varchar(16) COLLATE latin1_general_cs DEFAULT NULL,
+  `Username` varchar(16) CHARACTER SET ascii DEFAULT NULL,
   `JSKey` char(64) COLLATE latin1_general_cs NOT NULL,
   `Salt` char(64) COLLATE latin1_general_cs NOT NULL,
   PRIMARY KEY (`SessionID`,`CreateTime`),
@@ -134,7 +134,7 @@ CREATE TABLE `BW_Transaction` (
   `RequestTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `TransactionID` varchar(255) COLLATE latin1_general_cs NOT NULL,
   `SessionID` char(64) COLLATE latin1_general_cs DEFAULT NULL,
-  `Username` varchar(16) COLLATE latin1_general_cs DEFAULT NULL,
+  `Username` varchar(16) CHARACTER SET ascii DEFAULT NULL,
   `IP` varchar(15) COLLATE latin1_general_cs DEFAULT NULL,
   `URL` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `ExecutionTime` decimal(10,2) unsigned DEFAULT NULL,
@@ -144,7 +144,7 @@ CREATE TABLE `BW_Transaction` (
   KEY `BW_Transaction__SIDLink` (`SessionID`),
   CONSTRAINT `BW_Transaction__SIDLink` FOREIGN KEY (`SessionID`) REFERENCES `BW_Session` (`SessionID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `BW_Transaction__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1860 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+) ENGINE=InnoDB AUTO_INCREMENT=3415 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,10 +155,10 @@ DROP TABLE IF EXISTS `BW_User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `BW_User` (
-  `Username` char(16) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `Username` char(16) CHARACTER SET ascii NOT NULL,
   `Nickname` char(16) NOT NULL,
   `Group` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `Password` char(32) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `Password` char(32) CHARACTER SET ascii NOT NULL,
   `LastActiveTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `RegisterIP` char(15) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `RegisterTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -596,6 +596,27 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `User_active` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_active`(
+	IN in_username	CHAR(16)
+)
+BEGIN
+	UPDATE BW_User SET LastActiveTime = CURRENT_TIMESTAMP WHERE Username = in_username;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `User_get` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -696,4 +717,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-26 10:13:00
+-- Dump completed on 2019-12-01  4:53:16
