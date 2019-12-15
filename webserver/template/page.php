@@ -109,15 +109,19 @@
 		<header>
 			<h1 id="header_logo">Beardle</h1>
 			<span id="phone_menu_button">≡</span>
-			<div id="search_container">
-				<input id="search" />
-			</div>
+			<form id="search_container" action="<?= $USERLANGUAGE ?>/search" method="get" target="searchtab">
+<?php if ($PAGELANG == 'en'): ?>
+				<input name="search" id="search" placeholder="Enter keyword to search" />
+<?php else: ?>
+				<input name="search" id="search" placeholder="输入关键字搜索" />
+<?php endif; ?>
+			</form>
 			<nav id="header_nav">
 <?php
 	foreach ($TEMPLATEDATA['NavLinks'][$PAGELANG] as $name=>$link)
 		echo '<a href="',$USERLANGUAGE,$link,'">',$name,'</a>';
 ?>
-				<span id="header_nav_international" class="dropdown">🌍</span>
+				<a href="#" id="header_nav_international" class="dropdown">🌍</a>
 			</nav>
 		</header>
 		<img id="banner" alt="Banner image" src="/<?= $PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>" />

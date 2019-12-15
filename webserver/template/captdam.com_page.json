@@ -7,7 +7,7 @@
 			"Blog"		: "/blog",
 			"Notes"		: "/note",
 			"Resource"	: "/resource",
-			"Login"		: "/user"
+			"Account"		: "/user"
 		},
 		"default" : {
 			"主页"		: "/",
@@ -15,7 +15,7 @@
 			"博客"		: "/blog",
 			"随笔"		: "/note",
 			"资源"		: "/resource",
-			"登录"		: "/user"
+			"账户"		: "/user"
 		}
 	},
 	"SiteOwner" : {
