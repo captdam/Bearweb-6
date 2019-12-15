@@ -29,3 +29,4 @@
 	
 	http_response_code(201);
 	$API = array('Status'=>'OK');
+?>

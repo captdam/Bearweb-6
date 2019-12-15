@@ -226,6 +226,7 @@
 					'IP'	=> $_SERVER['REMOTE_ADDR']
 				)
 			);
+			setcookie('LastCom',time(),0,'/','',FORCEHTTPS,false);
 			
 			/*
 			$BW->client

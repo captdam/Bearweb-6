@@ -1,31 +1,30 @@
 'use strict';
 
+//Page load promise
+function ready() {
+	return new Promise( (resolve,reject) => {
+		window.addEventListener('load',resolve);
+	} );
+}
+
 //Request desktop version (phone request desktop version)
-window.addEventListener('load',function(){
+ready().then( () => {
 	var ua = window.navigator.userAgent;
 	if (!/mobile/i.test(ua))
 		document.querySelector('meta[name=viewport]').content = 'width=1024';
-});
+} );
 
-//Process page HTML head: Search box
-window.addEventListener('load',function(){
-	var search = document.getElementById('search');
-	search.value = '输入关键字搜索';
-	search.addEventListener('focus',function(){ //Active searchbox
-		if (search.value == '输入关键字搜索') search.value = '';
-	});
-	search.addEventListener('keyup',function(key){ //Fire the search
-		key.preventDefault();
-		var keyCode = key.keyCode;
-		if (keyCode == 13) window.open('/search?search='+search.value,'search');;
-	});
-	search.addEventListener('blur',function(){ //Leave searchbox
-		if (search.value == '') search.value = '输入关键字搜索';
-	});
-});
+//Renew session
+ready().then( () => {
+	setInterval(function(){
+		var lastComTime = cookie.get('LastCom') * 1000; //Set by server-side framework
+		if ( Date.now() > lastComTime + 1000 * 60 * 30 )
+			ajax('HEAD','/api/user/renew',{});
+	},1000*60*10); //Check every 10mins, renew every 30 mins
+} );
 
 //Process page HTML head: Phone menu
-window.addEventListener('load',function(){
+ready().then( () => {
 	var menu = document.getElementById('phone_menu_button');
 	var nav = document.getElementById('header_nav');
 	var search = document.getElementById('search');
@@ -41,19 +40,19 @@ window.addEventListener('load',function(){
 			search.style.display = 'none';
 		}
 	});
-});
+} );
 
 //Process side tool bar
-window.addEventListener('load',function(){
+ready().then( () => {
 	var side = document.getElementById('side');
 	var buttons = side.querySelectorAll('img');
 	buttons[0].addEventListener('click',function(){ //Top of page
 		scroll(0,30,50);
 	});
-});
+} );
 
 //Process header: Location navigator
-window.addEventListener('load',function(){
+ready().then( () => {
 	var localInd = document.createElement('span');
 	var url = '';
 	localInd.setAttribute('id','main_header_location');
@@ -72,10 +71,10 @@ window.addEventListener('load',function(){
 		localInd.appendChild(linker);
 	});
 	document.getElementById('main_title').insertBefore(localInd,document.querySelector('#main_title>h1'));
-});
+} );
 
 //Process page status indecator
-window.addEventListener('load',function(){
+ready().then( () => {
 	var pageStatus = document.querySelector('html').dataset.pagestatus;
 	var textTable = {
 		"C" : ["施工中","此页面正在施工中，页面内容随时可能发生更改。"],
@@ -87,10 +86,10 @@ window.addEventListener('load',function(){
 	if (!(pageStatus in textTable))
 		return;
 	notice(textTable[pageStatus][0],textTable[pageStatus][1]);
-});
+} );
 
 //Giving style for content and content list
-window.addEventListener('load',function(){
+ready().then( () => {
 	//Adding style for content list
 	if (!/mobile/i.test(window.navigator.userAgent)) { //Desktop: switch to DPTR with bg-image
 		Array.prototype.slice.call(document.querySelectorAll('.contentlist')).map(function(x){
@@ -148,10 +147,10 @@ window.addEventListener('load',function(){
 			x.appendChild(word);
 		});
 	});
-});
+} );
 
 //Add style for HTML <SELECT>
-window.addEventListener('load',function(){
+ready().then( () => {
 	Array.prototype.slice.call(document.querySelectorAll('select')).map(function(x){
 		x.addEventListener('change',function(y){
 			Array.prototype.slice.call(x.querySelectorAll('option')).map(function(z){
@@ -164,4 +163,4 @@ window.addEventListener('load',function(){
 				x.style.cssText = z.style.cssText;
 		});
 	});
-});
+} );
