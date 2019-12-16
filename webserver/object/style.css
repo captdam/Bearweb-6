@@ -334,6 +334,13 @@ footer {
 #modal_content {
 	padding: 10px 15px;
 }
+#modal_content button {
+	display: block;
+	width: calc(100% - 20px);
+	text-align: center;
+	padding: 10px 5px;
+	margin: 5px;
+}
 
 /** Content section **/
 #main_content {

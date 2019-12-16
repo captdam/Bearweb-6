@@ -1,5 +1,5 @@
 <?php
-	http_response_code(204);
+	http_response_code(201);
 	$API = array('Status'=>'OK');
 	
 	/*

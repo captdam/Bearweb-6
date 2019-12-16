@@ -29,6 +29,6 @@
 	Do NOT use HTTP code to determine API success/fail:
 	eg. API_isThisFileOnServer returns 404 if the file is missed, but the API do successed
 	Since HTML file will be returned if API fail and JSON will be returned if API success
-	The front-end APi caller should check the format of the response to determine API success/fail
+	The front-end API caller should check the format of the response to determine API success/fail
 	*/
 ?>

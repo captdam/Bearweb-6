@@ -20,8 +20,8 @@ ready().then( () => {
 		var lastComTime = cookie.get('LastCom') * 1000; //Set by server-side framework
 		if ( Date.now() > lastComTime + 1000 * 60 * 30 )
 			ajax('HEAD','/api/user/renew',{});
-	},1000*60*10); //Check every 10mins, renew every 30 mins
-} );
+	},1000*60*10); //Check every 10mins, renew every 30mins. 
+} ); //Using cookie instead of variable to share the same process between tabs
 
 //Process page HTML head: Phone menu
 ready().then( () => {

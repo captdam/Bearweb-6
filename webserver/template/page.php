@@ -179,7 +179,12 @@
 		</footer>
 		
 		<div id="modal_container" onclick="modal()"><div id="modal">
+			
+<?php if ($PAGELANG == 'en'): ?>
 			<div id="modal_close">╳ （Close）</div>
+<?php else: ?>
+			<div id="modal_close">╳ （关闭）</div>
+<?php endif; ?>
 			<div id="modal_content" onclick="event.stopPropagation()"></div>
 		</div></div>
 	</body>
