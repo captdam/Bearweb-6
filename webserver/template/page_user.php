@@ -40,8 +40,8 @@
 				var nickname = nicknameField.value;
 				var email = emailField.value;
 				
-				nicknameField.style.borderColor = 'black';
-				emailField.style.borderColor = 'black';
+				nicknameField.style.borderColor = null;
+				emailField.style.borderColor = null;
 				
 				if (!/^[^~!@#$%^&*()_\+`\-=\|\\\\{\}\[\];:"\',.\/\<\>\?\s]{2,16}$/.test(nickname)) {
 					nicknameField.style.borderColor = 'red';
@@ -203,9 +203,9 @@
 				var passwordFieldNew = document.getElementById('modifyPasswordNew');
 				var passwordFieldAUX = document.getElementById('modifyPasswordRepeat');
 				
-				passwordFieldOld.style.borderColor = 'black';
-				passwordFieldNew.style.borderColor = 'black';
-				passwordFieldAUX.style.borderColor = 'black';
+				passwordFieldOld.style.borderColor = null;
+				passwordFieldNew.style.borderColor = null;
+				passwordFieldAUX.style.borderColor = null;
 				
 				var ok = true;
 				[passwordFieldOld,passwordFieldNew,passwordFieldAUX].forEach( x => {
@@ -348,8 +348,8 @@
 				var username = usernameField.value;
 				var password = passwordField.value;
 				
-				usernameField.style.borderColor = 'black';
-				passwordField.style.borderColor = 'black';
+				usernameField.style.borderColor = null;
+				passwordField.style.borderColor = null;
 				
 				if (!/^[A-Za-z0-9]{2,16}$/.test(username)) {
 					usernameField.style.borderColor = 'red';
@@ -506,10 +506,10 @@
 				var nickname = nicknameField.value;
 				var password = passwordField.value;
 				
-				usernameField.style.borderColor = 'black';
-				nicknameField.style.borderColor = 'black';
-				passwordField.style.borderColor = 'black';
-				passwordFieldAUX.style.borderColor = 'black';
+				usernameField.style.borderColor = null;
+				nicknameField.style.borderColor = null;
+				passwordField.style.borderColor = null;
+				passwordFieldAUX.style.borderColor = null;
 				
 				if (!/^[A-Za-z0-9]{2,16}$/.test(username)) {
 					usernameField.style.borderColor = 'red';
