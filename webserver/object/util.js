@@ -60,6 +60,33 @@ function modalFormat(contents) {
 	modal(display);
 }
 
+//Load a file to a tag and save the content as dataURL
+function loadBlob(file) {
+	return new Promise( function(resolve,reject) {
+		var reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = () => resolve([
+			reader.result.replace(/^data\:.*?\/.*?\;base64\,/,'').replace('-','+').replace('_','/'),
+			window.URL.createObjectURL(file)
+		]);
+		reader.onerror = () => reject('Error');
+		reader.onabort = () => reject('Abort');
+	} );
+}
+function loadBlobDisplay(file,target) {
+	loadBlob(file).then(
+		([base64,url]) => {
+			target.dataset.data64 = base64;
+			target.src = url;
+		},
+		(errInfo) => {
+			var errSpan = document.createElement('p');
+			errSpan.innerText = 'File reader error: ' + errInfo;
+			target.replaceWith(errSpan);
+		}
+	);
+}
+
 
 
 //Scroll page with animation
