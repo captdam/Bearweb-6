@@ -66,7 +66,7 @@
 					'POST',
 					'/api/user/changeinfo',
 					{
-						"username" : nickname,
+						"nickname" : nickname,
 						"email" : email
 					}
 				).then(
@@ -261,18 +261,6 @@
 				);
 			}
 		</script>
-	</div>
-	
-	<div class="bearform">
-		<h2>Bearcraft信息修改</h2>
-		<label>皮肤</label>
-		<input id="modifyMCSkin" type="file" accept="image/jpeg"/>
-		<label>披风</label>
-		<input id="modifyMCCape" type="file" accept="image/jpeg"/>
-	</div>
-	
-	<div>
-		*****
 	</div>
 
 	<div class="bearform">

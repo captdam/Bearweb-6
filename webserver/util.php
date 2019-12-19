@@ -84,8 +84,8 @@
 		}
 
 		//Render image
-		//$result = $x->render('xx',00,null) return the result
-		//$x->render('xx',00,'url') save the result
+		//$result = $x->render(80,null,'format') return the result
+		//$x->render(80,'dir','format') save the result
 		public function render($quality=85,$filename=null,$format='jpeg') {
 			//Input setting
 			if ($filename)
@@ -147,7 +147,8 @@
 			'Username'	=> '/^[A-Za-z0-9]{2,16}$/',
 			'MD5'		=> '/^[a-f0-9]{32}$/',
 			'Nickname'	=> '/^[^~!@#$%^&*()_\+`\-=\|\\\\{\}\[\];:"\',.\/\<\>\?\s]{2,16}$/u',
-			'Token'		=> '/^[A-Za-z0-9\/\+]{64}$/'
+			'Token'		=> '/^[A-Za-z0-9\/\+]{64}$/',
+			'Email'		=> '/^[^@]+@[A-Za-z0-9]+(\.[^@]+)+$/'
 		);
 		if (!isset($check[$type]))
 			throw new Exception('Util::checkRegex - Type is undefined.');
