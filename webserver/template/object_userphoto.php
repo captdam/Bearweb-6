@@ -10,7 +10,6 @@
 		throw new BW_ClientError(404,'No such user.');
 	$user = $user[0];
 	
-	
 	if ($user['Photo'])
 		echo $user['Photo'];
 	else {
@@ -23,7 +22,4 @@
 		2. The server construct a new BW instance, tons of DBMS access and log writing.
 		*/
 	}
-	
-	http_response_code(201);
-	$API = array('Status'=>'OK');
 ?>
