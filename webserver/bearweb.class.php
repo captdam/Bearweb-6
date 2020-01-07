@@ -380,7 +380,7 @@
 				),
 			true);
 			if(!$page) {
-				throw new BW_ClientError(404,'Page not found.');
+				throw new BW_ClientError(404,'URL resource not found.');
 			}
 			/*
 			Sitemap_get:
