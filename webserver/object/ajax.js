@@ -1,5 +1,5 @@
-//Native AJAX function
-function ajax(method,url,post) {
+//Base AJAX function
+function ajax(method,url,post,progress) {
 	'use strict';
 	
 	var request = '';
@@ -24,16 +24,22 @@ function ajax(method,url,post) {
 		xhr.onabort = () => reject([0,'XHR abort']);
 		xhr.ontimeout = () => reject([0,'XHR timeout']);
 		
+		if (typeof progress != 'undefined') {
+			xhr.onprogress = (e) => {
+				progress( e.loaded , e.lengthComputable?e.total:-1 );
+			}
+		}
+		
 		xhr.send(request);
 	} );
 }
 
 //AJAX to API, return must be JSON
-function ajaxAPI(method,url,post) {
+function ajaxAPI(method,url,post,progress) {
 	'use strict';
 	
 	return new Promise( (API_OK,API_FAIL) => {
-		ajax(method,url,post).then(
+		ajax(method,url,post,progress).then(
 			([status,response]) => { //XHR success
 			
 				//API success => return JSON

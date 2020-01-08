@@ -1,3 +1,8 @@
+<div class="main_content_title">
+	<h1><?= $PAGEDATA['Title'] ?></h1>
+	<p><?= $PAGEDATA['Description'] ?></p>
+</div>
+
 <?php
 	$pageSize = 20;
 	$currentPage = getInputPage();

@@ -131,23 +131,6 @@ function altInput(x) { //use "this"
 	}
 }
 
-//Append notice to page
-function notice(note,desc) {
-	var x = document.createElement('div');
-	var noticeHead = document.createElement('b');
-	noticeHead.textContent = note;
-	var noticeDesc = document.createElement('i');
-	noticeDesc.textContent = desc+'（点击关闭这个提示）';
-	noticeDesc.classList.add('info');
-	x.appendChild(noticeHead);
-	x.appendChild(noticeDesc);
-	x.classList.add('cover_bottom');
-	x.addEventListener('click',function(){
-		this.remove();
-	});
-	document.getElementById('main_content').appendChild(x);
-}
-
 //Open/close spoiler
 /*
 function spoiler(spoilerSwitchID,spoilerContentID){

@@ -73,21 +73,6 @@ ready().then( () => {
 	document.getElementById('main_title').insertBefore(localInd,document.querySelector('#main_title>h1'));
 } );
 
-//Process page status indecator
-ready().then( () => {
-	var pageStatus = document.querySelector('html').dataset.pagestatus;
-	var textTable = {
-		"C" : ["施工中","此页面正在施工中，页面内容随时可能发生更改。"],
-		"D" : ["不推荐","由于某些<del>黑幕</del>，本页面的所提到的的内容是不被推荐的内容，本页面随时可能会被删除或锁定（无法访问）。"],
-//		"S" : ["特殊页面","总之这个页面的内容都是特殊内容。Web技术层面来解释的话，这个页面是可以被访问但是不应该出现在网站地图的内容。"],
-		"A" : ["授权限制","本页面带有权限管理，只有作者，管理员，或是白名单内的用户才可访问。"],
-		"P" : ["挂起页面","本页面已被挂起，只有作者与管理员才可以访问。"]
-	}
-	if (!(pageStatus in textTable))
-		return;
-	notice(textTable[pageStatus][0],textTable[pageStatus][1]);
-} );
-
 //Giving style for content and content list
 ready().then( () => {
 	//Adding style for content list

@@ -102,7 +102,6 @@
 		<script src="/web/ajax.js"></script>
 		<script src="/web/md5.js"></script>
 		<script src="/web/util.js"></script>
-		<!--script src="/web/user.js"></script-->
 		<script src="/web/ini.js"></script>
 	</head>
 	<body>
@@ -121,7 +120,6 @@
 	foreach ($TEMPLATEDATA['NavLinks'][$PAGELANG] as $name=>$link)
 		echo '<a href="',$USERLANGUAGE,$link,'">',$name,'</a>';
 ?>
-				<a href="#" id="header_nav_international" class="dropdown">🌍</a>
 			</nav>
 		</header>
 		<img id="banner" alt="Banner image" src="/<?= $PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>" />
@@ -169,11 +167,11 @@
 			<div>
 <?php
 	switch ($PAGELANG) {
-		case 'en':	echo '<span>🌍This page is also avaliable in:</span>'; break;
-		default:	echo '<span>🌍本页面亦适用于这些语言：</span>';
+		case 'en':	echo '<span>This page is also avaliable in: </span>'; break;
+		default:	echo '<span>本页面亦适用于这些语言： </span>';
 	}
 	foreach ($LANGUAGESET as $x)
-		echo '<a hreflang="',$x,'" href="/',$x,'/',$PAGEDATA['URL'],'">',$x,'</a> ';
+		echo '<a hreflang="',$x,'" href="/',$x,'/',$PAGEDATA['URL'],'"> 🌍',$x,'</a> ';
 ?>
 			</div>
 		</footer>
