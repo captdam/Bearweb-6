@@ -1,6 +1,8 @@
 <?php
 	//Check
-	$username = $GET['username'] ?? ''; #If undefined, give '', will fail the regexp check
+	$username = $GET['username'] ?? 
+		( isset($CLIENT['UserInfo']) ? $CLIENT['UserInfo']['Username'] : '');
+	/* If undefined, user user's own username as default value; otherwise, give '' which will fail the regexp check */
 	if ( !checkRegex('Username',$username)  )
 		throw new BW_ClientError(400,'Username undefined or bad format.');
 	
@@ -14,7 +16,7 @@
 	$works = $BW->database->call(
 		'User_works',
 		array(
-			'Username'	=> $BW->client['UserInfo']['Username'],
+			'Username'	=> $CLIENT['UserInfo']['Username'],
 			'Site'		=> SITENAME #Only show works belongs to this site
 		),
 	true);
@@ -45,10 +47,10 @@
 	
 	//Hide details to people other than author and admin
 	if (
-		!isset($client['UserInfo']) || #Visitor or
+		!isset($CLIENT['UserInfo']) || #Visitor or
 		(
-			!in_array('Admin',$client['UserInfo']['Group']) && #Not admin/authro
-			!in_array($client['UserInfo']['Username'],$whiteUser)
+			!in_array('Admin',$CLIENT['UserInfo']['Group']) && #Not admin/authro
+			!in_array($CLIENT['UserInfo']['Username'],$whiteUser)
 		)
 	) {
 		//Show OK pages only

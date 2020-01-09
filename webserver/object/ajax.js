@@ -57,7 +57,7 @@ function ajaxAPI(method,url,post,progress) {
 				else
 					API_FAIL([status,response]); //Raw response
 			},
-			([status,response]) => { //XML fail
+			([status,response]) => { //XHR fail
 				API_FAIL([status,response]);
 			}
 		);

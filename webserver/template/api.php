@@ -6,6 +6,8 @@
 	$GET = $_GET;
 	$API = array();
 	
+	$CLIENT = $BW->client;
+	
 	try {
 		$BW->database->begin();
 		include $templateSub;

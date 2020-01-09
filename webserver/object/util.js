@@ -36,7 +36,7 @@ function modal(content) {
 	if (typeof content == 'undefined') {
 		modal.style.top = '-100%';
 		setTimeout( () => modalContainer.style.background = 'transparent', 400);
-		setTimeout( () => modalContent.innerHTML = '', 1000);
+		setTimeout( () => removeAllChild(modalContent), 1000);
 		setTimeout( () => modalContainer.style.display = 'none', 1400);
 	}
 	
@@ -180,3 +180,7 @@ function spoiler(spoilerSwitchID,spoilerContentID){
 	});
 }
 */
+
+/* HTML/DOM util */
+function removeAllChild(dom) { while(dom.lastChild) dom.lastChild.remove(); }
+function createElement(tag,content) { var x = document.createElement(tag); if (typeof content != 'undefined') x.textContent = content; return x;}
