@@ -27,13 +27,13 @@ class Cookie {
 var cookie = new Cookie();
 
 //Modal
-function modal(content) {
+function modal(dom) {
 	var modalContainer = document.getElementById('modal_container');
 	var modal = document.getElementById('modal');
 	var modalContent = document.getElementById('modal_content');
 	
 	//Close modal
-	if (typeof content == 'undefined') {
+	if (typeof dom == 'undefined') {
 		modal.style.top = '-100%';
 		setTimeout( () => modalContainer.style.background = 'transparent', 400);
 		setTimeout( () => removeAllChild(modalContent), 1000);
@@ -42,7 +42,8 @@ function modal(content) {
 	
 	//Display modal
 	else {
-		modalContent.innerHTML = content;
+		removeAllChild(modalContent)
+		modalContent.appendChild(dom);
 		setTimeout( () => modalContainer.style.background = 'rgba(0,0,0,0.7)', 50);
 		modalContainer.style.display = 'block';
 		setTimeout( () => modal.style.top = '100px', 400);
@@ -50,14 +51,14 @@ function modal(content) {
 	
 }
 function modalFormat(contents) {
-	var display = '';
-	contents.forEach((x,i) => { //First element: i = 0 => Title
-		if (i)
-			display += '<p>' + x + '</p>';
-		else
-			display += '<h2>' + x + '</h2>';
-	});
-	modal(display);
+	var display = [];
+	contents.forEach(
+		(x,i) => display.push({
+			"tag" : (i ? "p" : "h2"),  //First element: i = 0 => Title
+			"textContent" : x
+		})
+	);
+	modal(domStructure({"tag":"div","child":display}));
 }
 
 //Load a file to a tag and save the content as dataURL
@@ -184,3 +185,15 @@ function spoiler(spoilerSwitchID,spoilerContentID){
 /* HTML/DOM util */
 function removeAllChild(dom) { while(dom.lastChild) dom.lastChild.remove(); }
 function createElement(tag,content) { var x = document.createElement(tag); if (typeof content != 'undefined') x.textContent = content; return x;}
+
+//JSON to DOM
+function domStructure(struct) {
+	var x = document.createElement(struct.tag);
+	for (var key in struct) {
+		if (key != 'tag' && key != 'child') x[key] = struct[key];
+	}
+	if (struct.child) {
+		struct.child.map( y => x.appendChild(domStructure(y)) );
+	}
+	return x;
+}

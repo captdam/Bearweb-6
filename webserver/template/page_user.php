@@ -105,17 +105,17 @@
 		</div>
 		<script>
 			function uploadAvatarPrompt() {
-				modal(
+				modal( domStructure({"tag":"div","child":[
   <?php if ($PAGELANG == 'en'): ?>
-					'<h2>Image preview</h2>'+
-					'<img id="modifyAvatarPreview" style="width: 200px; height: 200px;" />'+
-					'<button onclick="uploadAvatar()">Confirm and upload</button>'
+					{"tag":"h2","textContent":"Image preview"},
+					{"tag":"img","id":"modifyAvatarPreview","style":"width: 200px; height: 200px;"},
+					{"tag":"button","textContent":"Confirm and upload","onclick":uploadAvatar}
   <?php else: ?>
-					'<h2>图片预览</h2>'+
-					'<img id="modifyAvatarPreview" style="width: 200px; height: 200px;" />'+
-					'<button onclick="uploadAvatar()">确认上传</button>'
+					{"tag":"h2","textContent":"图片预览"},
+					{"tag":"img","id":"modifyAvatarPreview","style":"width: 200px; height: 200px;"},
+					{"tag":"button","textContent":"确认上传","onclick":uploadAvatar}
   <?php endif; ?>
-				);
+				]}) );
 				loadBlobDisplay(
 					document.getElementById('modifyAvatar').files[0],
 					document.getElementById('modifyAvatarPreview')
@@ -267,17 +267,17 @@
 		<button onclick="logoutPrompt()">退出账户</button>
 		<script>
 			function logoutPrompt() {
-				modal(
+				modal( domStructure({"tag":"div","child":[
   <?php if ($PAGELANG == 'en'): ?>
-					'<h2>Are you double trible quadruple sure you want to logout?</h2>'+
-					'<p>This will end the current session including all tabs you open in the browser from the same site. If there is any pending progress (or upload in progress), such as editing a page, leaving comments, you will permanently loss your progress.</p>'+
-					'<button onclick="logout()">Yes, I am sure</button>'
+					{"tag":"h2","textContent":"Are you double trible quadruple sure you want to logout?"},
+					{"tag":"p","textContent":"This will end the current session including all tabs you open in the browser from the same site. If there is any pending progress (or upload in progress), such as editing a page, leaving comments, you will permanently loss your progress."},
+					{"tag":"button","textContent":"Yes, I am sure","onclick":logout}
   <?php else: ?>
-					'<h2>确定肯定坚定不否定要退出？</h2>'+
-					'<p>退出登录将会终止当前会话的所有任务（包括你在其他tab打开的本站的页面）。如果你有尚未提交或正在提交的任务（例如：编辑某个页面，留言），你也许会永远地失去这些作业进程。</p>'+
-					'<button onclick="logout()">对，退出，不怂</button>'
+					{"tag":"h2","textContent":"确定肯定坚定不否定要退出？"},
+					{"tag":"p","textContent":"退出登录将会终止当前会话的所有任务（包括你在其他tab打开的本站的页面）。如果你有尚未提交或正在提交的任务（例如：编辑某个页面，留言），你也许会永远地失去这些作业进程。"},
+					{"tag":"button","textContent":"对，退出，不怂","onclick":logout}
   <?php endif; ?>
-				);
+				]}) );
 			}
 			function logout() {
 				ajaxAPI('POST','/api/user/logout',{}).then(

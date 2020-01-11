@@ -16,7 +16,7 @@
 	$works = $BW->database->call(
 		'User_works',
 		array(
-			'Username'	=> $CLIENT['UserInfo']['Username'],
+			'Username'	=> $username,
 			'Site'		=> SITENAME #Only show works belongs to this site
 		),
 	true);
