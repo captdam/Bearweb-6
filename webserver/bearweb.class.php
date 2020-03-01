@@ -162,7 +162,7 @@
 			
 			//Site closed? (Column 'Closed' exists and not empty)
 			if (array_key_exists('Closed',$site) && $site['Closed']) { #Use array_key_exists because it can be null
-				throw new BW_ClientError(503,'Server closed: '.$config['Closed']); #Special case: This is a server error; use BW_ClientError to provide info to client.
+				throw new BW_ClientError(503,'Server closed: '.$site['Closed']); #Special case: This is a server error; use BW_ClientError to provide info to client.
 			}
 			writeLog('Site is ready.');
 		}
