@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.28, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)
 --
 -- Host: localhost    Database: Bearweb
 -- ------------------------------------------------------
--- Server version	5.7.28-0ubuntu0.16.04.2
+-- Server version	5.7.29-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -144,7 +144,7 @@ CREATE TABLE `BW_Transaction` (
   KEY `BW_Transaction__SIDLink` (`SessionID`),
   CONSTRAINT `BW_Transaction__SIDLink` FOREIGN KEY (`SessionID`) REFERENCES `BW_Session` (`SessionID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `BW_Transaction__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7743 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+) ENGINE=InnoDB AUTO_INCREMENT=26701 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -257,6 +257,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Config_get`(
 )
 BEGIN
 	SELECT * FROM BW_Config C WHERE C.Site = '' OR C.Site = in_sitename;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Config_write` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Config_write`(
+	IN in_site	VARCHAR(45),
+    IN in_Key	VARCHAR(255),
+    IN in_value	VARCHAR(4096)
+)
+BEGIN
+	UPDATE BW_Config SET `Value` = in_value WHERE Site = in_site AND `Key` = in_Key;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -446,9 +469,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -462,8 +485,8 @@ BEGIN
 	SELECT * FROM BW_Sitemap WHERE
 		(in_site IS NULL OR Site = in_site OR Site = '@ALL') AND
         (in_url IS NULL OR URL LIKE in_url) AND
-        (in_category IS NULL OR FIND_IN_SET( CONCAT(',',Category,',') , CONCAT(',',in_category,',') ) ) AND
-        (in_status IS NULL OR FIND_IN_SET(Site,in_status) )
+        (in_category IS NULL OR FIND_IN_SET(Category,in_category) ) AND
+        (in_status IS NULL OR FIND_IN_SET(`Status`,in_status) )
 	;
 END ;;
 DELIMITER ;
@@ -515,7 +538,8 @@ BEGIN
 			ORDER BY S.LastModify DESC
             LIMIT in_size OFFSET in_offset
 		) AS Site
-	);
+	)
+    ORDER BY Map.LastModify DESC;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -717,6 +741,31 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `User_works` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_works`(
+	IN in_username	CHAR(16),
+    IN in_site		VARCHAR(45)
+)
+BEGIN
+	SELECT S.Site,S.URL, S.Category, S.CreateTime, S.LastModify, S.`Status`, (SELECT GROUP_CONCAT(DISTINCT W.Title SEPARATOR '/') FROM BW_Webpage W WHERE W.Site=S.Site AND W.URL=S.URL) AS Title
+    FROM BW_Sitemap S
+    WHERE (in_site IS NULL OR Site = in_site) AND (Author = in_username)
+    ORDER BY Site, URL;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `Webpage_get` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -733,7 +782,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Webpage_get`(
     IN in_language	VARCHAR(5)
 )
 BEGIN
-	SELECT * FROM BW_Webpage WHERE (Site = in_site OR Site = '@ALL') AND URL = in_url AND `Language` = in_language;
+	SELECT * FROM BW_Webpage
+    WHERE
+		(Site = in_site OR Site = '@ALL') AND
+		URL = in_url AND
+        (in_language IS NULL OR `Language` = in_language);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -772,4 +825,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-12-19 18:06:03
+-- Dump completed on 2020-03-13 12:15:08
