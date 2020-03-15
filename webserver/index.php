@@ -1,6 +1,5 @@
 <?php
 	define('SITENAME',getenv('sitename'));
-//	define('SITENAME','beardle.com');
 	date_default_timezone_set('UTC');
 
 	define('TRANSACTIONID',uniqid(SITENAME.'-',true));
@@ -69,7 +68,8 @@
 		ob_clean(); ob_start();
 		http_response_code(500);
 		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
-		$BW->useErrorTemplate('BW_InternalServerError'.$e); ////////////////////////////
+//		$BW->useErrorTemplate('BW_InternalServerError'.$e); ////////////////////////////////////////// DEV ////////////////////////////////////
+		$BW->useErrorTemplate('BW_InternalServerError'.'Internal error'); //////////////////////////// PRODUCT ////////////////////////////////
 		try {
 			$dumpfile = './log/'.date('y-m-d').'-'.TRANSACTIONID.'.dump';
 			file_put_contents($dumpfile,print_r($e,true));

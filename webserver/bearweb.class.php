@@ -323,7 +323,24 @@
 			New_user:
 				
 				//Create new session
-				$session = $this->database->call('Session_new',array(),true)[0];
+				$session; ///////////////////////////////////////////////////////////////// InnoDB dead lock, WIP //////////////////////////////
+				$newuserOK = 0;
+				while ($newuserOK < 5) { //Try 5 times
+					try {
+						$session = $this->database->call('Session_new',array(),true)[0];
+						$newuserOK = 100;
+					} catch (BW_DatabaseServerError $e) {
+						if (strpos($e->getMessage(),'1213 Deadlock found')) {
+							writeLog('[DBMS]Error: 1213 Deadlock found.',true);
+						}
+						else
+							throw $e;
+					}
+				}
+				if ($newuserOK < 50) { //If fail 5 time, try last time. If fail, error will thrown
+					$session = $this->database->call('Session_new',array(),true)[0];
+				}
+				
 				$client['SessionInfo'] = array_merge($client['SessionInfo'],$session);
 				writeLog('New user. Generate Session ID: '.$session['SessionID']);
 				
