@@ -144,7 +144,7 @@ CREATE TABLE `BW_Transaction` (
   KEY `BW_Transaction__SIDLink` (`SessionID`),
   CONSTRAINT `BW_Transaction__SIDLink` FOREIGN KEY (`SessionID`) REFERENCES `BW_Session` (`SessionID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `BW_Transaction__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=26701 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+) ENGINE=InnoDB AUTO_INCREMENT=33512 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -236,6 +236,24 @@ END */ ;;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;;
 /*!50003 SET character_set_results = @saved_cs_results */ ;;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;;
+/*!50106 DROP EVENT IF EXISTS `Sitemap_GenXML` */;;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8mb4 */ ;;
+/*!50003 SET character_set_results = utf8mb4 */ ;;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = '+00:00' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `Sitemap_GenXML` ON SCHEDULE AT '2020-03-22 01:31:13' ON COMPLETION NOT PRESERVE ENABLE DO CALL Event_generateSitemapXMLManager() */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
 DELIMITER ;
 /*!50106 SET TIME_ZONE= @save_time_zone */ ;
 
@@ -280,6 +298,134 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Config_write`(
 )
 BEGIN
 	UPDATE BW_Config SET `Value` = in_value WHERE Site = in_site AND `Key` = in_Key;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Event_generateSitemapXML` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Event_generateSitemapXML`(
+	IN in_site			VARCHAR(45),
+    IN in_domainName	VARCHAR(255)
+)
+BEGIN
+	DECLARE done		INT DEFAULT FALSE;
+    DECLARE txt			LONGTEXT;
+    
+    DECLARE site		VARCHAR(45);
+    DECLARE url			VARCHAR(255);
+    DECLARE languages	VARCHAR(20000);
+    
+    DECLARE currentLanguages		VARCHAR(20000);
+    DECLARE currentLang				VARCHAR(5);
+    DECLARE currentLanguagesInner	VARCHAR(20000);
+    DECLARE currentLangInner		VARCHAR(5);
+    
+    DECLARE curs CURSOR FOR
+		SELECT S.Site, S.URL, GROUP_CONCAT(W.`Language`)
+		FROM BW_Sitemap S LEFT JOIN BW_Webpage W ON (S.Site=W.Site AND S.URL=W.URL)
+		WHERE FIND_IN_SET(S.`Status`,'R,r,O,C,D') AND (S.Site = '@ALL' OR S.Site = in_site)
+		GROUP BY S.Site, S.URL;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+	OPEN curs;
+    
+    SET txt = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">';
+    
+    sitemapLoop: LOOP
+		/* Read sitemap table */
+		FETCH curs INTO site, url, languages;
+        IF done THEN
+			LEAVE sitemapLoop;
+		END IF;
+        
+        /* Object: No language, language field will be NULL */
+        IF languages IS NULL THEN
+			SET txt = CONCAT(txt,'<url><loc>',in_domainName,url,'</loc></url>');
+        
+        /* Webpage: Multilingual, comma separated */
+        ELSE
+			/* Phase 1: Give the default URL with multilingual field */
+            SET currentLanguages = languages;
+			SET txt = CONCAT(txt,'<url><loc>',in_domainName,url,'</loc>');
+            WHILE ( LENGTH(currentLanguages) > 0 ) DO
+				SET currentLang = SUBSTRING_INDEX(currentLanguages,',',1);
+				SET currentLanguages = RIGHT( currentLanguages, LENGTH(currentLanguages) - LENGTH(currentLang) - 1 ); /* Truncate the current language and the comma. The last run will give right(x,-1) but it will not break */
+                SET txt = CONCAT(txt,'<xhtml:link rel="alternate" hreflang="',currentLang,'" href="',in_domainName,currentLang,'/',url,'"/>');
+            END WHILE;
+			SET txt = CONCAT(txt,'</url>');
+            
+            /* Phase 2: For each alternative language, give multilingual info */
+            SET currentLanguages = languages;
+            WHILE ( LENGTH(currentLanguages) > 0 ) DO
+				SET currentLang = SUBSTRING_INDEX(currentLanguages,',',1);
+				SET currentLanguages = RIGHT( currentLanguages, LENGTH(currentLanguages) - LENGTH(currentLang) - 1 ); 
+                SET txt = CONCAT(txt,'<url><loc>',in_domainName,currentLang,'/',url,'</loc>');
+						SET currentLanguagesInner = languages;
+						WHILE ( LENGTH(currentLanguagesInner) > 0 ) DO
+							SET currentLangInner = SUBSTRING_INDEX(currentLanguagesInner,',',1);
+							SET currentLanguagesInner = RIGHT( currentLanguagesInner, LENGTH(currentLanguagesInner) - LENGTH(currentLangInner) - 1 ); 
+							SET txt = CONCAT(txt,'<xhtml:link rel="alternate" hreflang="',currentLangInner,'" href="',in_domainName,currentLangInner,'/',url,'"/>');
+						END WHILE;
+                SET txt = CONCAT(txt,'</url>');
+            END WHILE;
+            
+            
+        END IF;
+    END LOOP;
+    CLOSE curs;
+    SET txt = CONCAT(txt,'</urlset>');
+    
+    /* Write to Object table */
+    START TRANSACTION;
+    INSERT INTO BW_Sitemap (Site,URL,Category,TemplateMain,TemplateSub,LastModify,`Status`) VALUES (in_site,'sitemap.xml','SEO','object','blob',CURRENT_TIMESTAMP,'S')
+		ON DUPLICATE KEY UPDATE LastModify = CURRENT_TIMESTAMP;
+    INSERT INTO BW_Object (Site,URL,MIME,Title,`Binary`) VALUES (in_site,'sitemap.xml','application/xml','Sitemap XML',txt)
+		ON DUPLICATE KEY UPDATE `Binary` = txt;
+    COMMIT;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Event_generateSitemapXMLManager` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Event_generateSitemapXMLManager`()
+BEGIN
+	DECLARE done		INT DEFAULT FALSE;
+    DECLARE sitename	VARCHAR(45);
+    DECLARE domain		VARCHAR(4096);
+    
+    DECLARE curs CURSOR FOR SELECT Site, `Value` FROM BW_Config WHERE `Key` = 'GenSitemapXML';
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+	OPEN curs;
+    
+    sitemapLoop: LOOP
+		FETCH curs INTO sitename, domain;
+        IF done THEN
+			LEAVE sitemapLoop;
+		END IF;
+		CALL Event_generateSitemapXML(sitename,domain);
+    END LOOP;
+    CLOSE curs;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -825,4 +971,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-13 12:15:08
+-- Dump completed on 2020-03-22  4:31:40
