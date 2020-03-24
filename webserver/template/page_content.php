@@ -1,8 +1,3 @@
-<div class="main_content_title">
-	<h1><?= $PAGEDATA['Title'] ?></h1>
-	<p>By: <?= $PAGEDATA['Author'] ?></p>
-</div>
-
 <div>
 <?php if ($PAGELANG == 'en'): ?>
 	<p>Description: <?= $PAGEDATA['Description'] ?></p>

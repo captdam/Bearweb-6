@@ -51,28 +51,6 @@ ready().then( () => {
 	});
 } );
 
-//Process header: Location navigator
-ready().then( () => {
-	var localInd = document.createElement('span');
-	var url = '';
-	localInd.setAttribute('id','main_header_location');
-	localInd.textContent = '当前位置：';
-	var linker = document.createElement('a');
-	linker.href = '/';
-	linker.textContent = '主页';
-	localInd.appendChild(linker);
-	decodeURI(window.location.pathname).split('/').map(function(x,i) {
-		if (i == 0) return;
-		if (x == '') return;
-		url += '/' + x;
-		var linker = document.createElement('a');
-		linker.href = url;
-		linker.textContent = x;
-		localInd.appendChild(linker);
-	});
-	document.getElementById('main_title').insertBefore(localInd,document.querySelector('#main_title>h1'));
-} );
-
 //Giving style for content and content list
 ready().then( () => {
 	//Adding style for content list

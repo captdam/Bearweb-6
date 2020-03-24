@@ -94,6 +94,7 @@
 		<meta charset="utf-8" />
 		<link href="/web/favorite.png" rel="icon" type="image/png" />
 		<link href="/web/style.css" rel="stylesheet" type="text/css" />
+		<link href="/web/stylemodules.css" rel="stylesheet" type="text/css" />
 <?php
 	//If "S", SEO no index, do not provide multilingual info
 	if ($PAGEDATA['Status'] != 'S') foreach ($LANGUAGESET as $x)
@@ -122,13 +123,15 @@
 ?>
 			</nav>
 		</header>
-		<img id="banner" alt="Banner image" src="/<?= $PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>" />
 		<div id="side">
 			<img src="/web/top.png" alt="Top of page" title="To page top" />
 		</div>
 		<main>
-			<div id="main_title">
-				<h1><?= $PAGEDATA['Title']; ?></h1>
+			<div id="main_title" style="background-image:url('/<?= $PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>')">
+				<div>
+					<h1><?= $PAGEDATA['Title']; ?></h1>
+					<p><?= $PAGEDATA['Description']; ?></p>
+				</div>
 			</div>
 			<div id="main_content">
 <?php include $templateSub; ?>
@@ -171,7 +174,7 @@
 		default:	echo '<span>本页面亦适用于这些语言： </span>';
 	}
 	foreach ($LANGUAGESET as $x)
-		echo '<a hreflang="',$x,'" href="/',$x,'/',$PAGEDATA['URL'],'"> 🌍',$x,'</a> ';
+		echo '<a class="langlink" hreflang="',$x,'" href="/',$x,'/',$PAGEDATA['URL'],'">',$x,'</a> ';
 ?>
 			</div>
 		</footer>

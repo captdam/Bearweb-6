@@ -1,7 +1,3 @@
-<div class="main_content_title">
-	<h1><?= $PAGEDATA['Title'] ?></h1>
-	<p><?= $PAGEDATA['Description'] ?></p>
-</div>
 <?php
 	$pagedata = json_decode($PAGEDATA['Content'],true);
 	foreach ( $pagedata['Sections'] as $url=>$info) {
@@ -68,8 +64,8 @@
 			'<p class="content_author">',$urlSet[$url][$lang]['Author'],'</p>',
 			'<p class="content_lastmodify">',$urlSet[$url][$lang]['LastModify'],'</p>';
 		if (count($urlLang[$url]) > 1) { #Multiple language avaliable for a URL
-			echo '<p class="content_multilingual"> 🌍';
-			foreach ($urlLang[$url] as $x) echo '<a href="/',$x,'/',$url,'">',$x,'</a>';
+			echo '<p class="content_multilingual">';
+			foreach ($urlLang[$url] as $x) echo '<a class="langlink" href="/',$x,'/',$url,'">',$x,'</a>';
 			echo '</p>';
 		}
 		echo '</div></a>';
