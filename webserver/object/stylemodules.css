@@ -12,11 +12,28 @@
 	opacity: 0.75;
 }
 
+/** Multilingual alternative link **/
+.langlink:before {
+	content: '🌍';
+}
+.langlink:after {
+	content: '  ';
+}
 
+/** Image is clickable **/
 .clickimage {
 	cursor: zoom-in;
 	width: 70%;
 	margin: 5px 15%;
+}
+
+/** Image block style: wide **/
+.wideimage {
+	width: 100% !important;
+	max-width: 100% !important;
+	padding: 0 !important;
+	object-fit: cover;
+	object-position: center center;
 }
 
 /** Module: Picture left, text right **/
@@ -31,7 +48,7 @@
 	padding: 0 0 10px;
 	width: 100%;
 }
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 768px) {
 	.pltr::after {
 		clear: both;
 		content: '';
@@ -41,7 +58,7 @@
 		box-sizing: border-box;
 		float: left;
 		padding: 15px;
-		max-width: 30%;
+		max-width: 28%;
 	}
 	.pltr>*:last-child {
 		box-sizing: border-box;
@@ -57,9 +74,10 @@ a.pltr:hover {
 	background-color: #DDDDDD !important;
 }
 
-/** Module: Menu style: A picture block, normally dark grey, color on hover **/
+/** Module: Menu style: A picture block, normally dark grey, change to color picture on hover **/
 .menu {
 	min-height: 150px;
+	display: block;
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -67,18 +85,14 @@ a.pltr:hover {
 	transition: filter 0.2s;
 }
 .menu>img {
-	height: 150px;
 	width: 150px;
-	box-sizing: border-box;
-	float: left;
-	padding: 15px;
+	display: inline-block;
+	padding-right: 20px;
 }
 .menu>div {
-	width: calc(100% - 170px);
-	margin: 15px 0;
-	box-sizing: border-box;
-	float: right;
-	padding-left: 15px;
+	display: inline-block;
+	vertical-align: top;
+	height: 100%;
 }
 .menu>div>* {
 	color: #FFFFFF !important;

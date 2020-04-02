@@ -175,7 +175,7 @@ header a:hover,footer a:hover {
 	background-color: rgba(7,11,20,0.4);
 }
 
-/** Side **/
+/** Side: tools on the side of the window **/
 #side {
 	width: 52px;
 	height: 102px;
@@ -189,7 +189,7 @@ header a:hover,footer a:hover {
 	height: 50px;
 	opacity: 0.75;
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) { /* Middle and large window: Show bear background image */
 	#side {
 		width: 115px;
 		height: 110px;
@@ -214,7 +214,7 @@ header a:hover,footer a:hover {
 	}
 }
 
-/** Modal **/
+/** Modal: Simular to JS alert, but with custom style **/
 #modal_container {
 	display: none;
 	z-index: 100;
@@ -260,7 +260,9 @@ header a:hover,footer a:hover {
 	margin: 5px;
 }
 
-/** Content section **/
+/** -------------------------- PAGE: content -------------------------- **/
+
+/** DIVs: alternative color background, white and light grey **/
 #main_content {
 	padding: 0 0;
 	background-color: #F3F3F3;
@@ -276,23 +278,19 @@ header a:hover,footer a:hover {
 }
 #main_content>*:nth-child(2n+1) {
 	background-color: #EEEEEE;
-	/*background-image: linear-gradient(0.25turn,
-		rgba(255, 255, 255, 0.8) calc(50% - 652px),
-		rgba(255, 255, 255, 0.95) calc(50% - 602px),
-		rgba(255, 255, 255, 0.95) calc(50% + 602px),
-		rgba(255, 255, 255, 0.8) calc(50% + 652px)
-	);*/
 }
 #main_content>*:nth-child(2n) {
 	background-color: #F6F6F6;
-	/*background-image: linear-gradient(0.25turn,
-		rgba(255, 255, 255, 0.8) calc(50% - 652px),
-		rgba(240, 240, 240, 0.95) calc(50% - 602px),
-		rgba(240, 240, 240, 0.95) calc(50% + 602px),
-		rgba(255, 255, 255, 0.8) calc(50% + 652px)
-	);*/
 }
 
+/** DIVs size **/
+@media (max-width: 1023px) {
+	#main_title>*,#main_content>* {
+		padding: 12px 10px;
+	}
+}
+
+/** Links **/
 #main_content a {
 	text-decoration: none;
 	color: #457DE5;
@@ -301,43 +299,21 @@ header a:hover,footer a:hover {
 	cursor: pointer;
 	color: #111D33;
 }
-#main_content a *,#main_content a *:hover {
+#main_content a,#main_content a:hover {
 	color: #000000;
 }
+
+/** Title DIVs: dark blue background  **/
 .main_content_title {
 	color: #FFFFFF;
 	background-image: none !important;
 	background-color: #111D33 !important;
 }
-.main_content_title p {
-	font-family: 'Orbitron', Arial, 'Arial', 'Microsoft YaHei', '微软雅黑';
-}
+
+/** Section: light-blue background box with blue left border **/
 #main_content section {
 	border-left: solid #2063AA 4px;
 	background-color: rgba(32,99,170,0.2);
 	padding: 2px 0 2px 10px;
 	margin: 0 0 10px 0;
-}
-.main_content_imageblock {
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-	background-size: cover !important;
-}
-.main_content_imagewindow {
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-	background-size: cover !important;
-	background-attachment: fixed !important;
-}
-@media (max-width: 1023px) {
-	#main_title>*,#main_content>* {
-		padding: 12px 10px;
-	}
-}
-@media (min-width: 768px) {
-	.imagefill {
-		background-position: center;
-		background-repeat: no-repeat;
-		background-size: cover;
-	}
 }

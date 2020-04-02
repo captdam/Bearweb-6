@@ -3,7 +3,7 @@
 	foreach ( $pagedata['Sections'] as $url=>$info) {
 		/* Syntax: "AbsoluteURL" : {"BgImg","Title","SubTitle","Description"} */
 		echo 
-			'<a href="',$USERLANGUAGE,$url,'" class="menu" style="background-image: url(\'/web/',$info[0],'_long.jpg\');">',
+			'<a href="',$USERLANGUAGE,$url,'" class="menu" style="background-image:linear-gradient( rgba(0, 0, 0, 0.5) 100%, rgba(0, 0, 0, 0.5)100%), url(\'/web/',$info[0],'_long.jpg\');">',
 			'<img src="/web/',$info[0],'.png" alt="',$info[1],'" /><div>',
 			'<h2>',$info[1],'</h2>',
 			'<p>',$info[2],'</p>',
@@ -41,7 +41,7 @@
 		//URL->Language->Info: Contains pages info
 		if (!isset( $urlSet[ $x['URL'] ] )) $urlSet[ $x['URL'] ] = array();
 		$urlSet[ $x['URL'] ][ $x['Language'] ] = array(
-			'Poster'	=> $x['Poster'] ?? 'NULL',
+			'Poster'	=> $x['Poster'] ? (',url(\''.$x['Poster'].'\')') : '',
 			'Title'		=> $x['Title'],
 			'Description'	=> $x['Description'],
 			'Keywords'	=> $x['Keywords'],
@@ -56,18 +56,18 @@
 	//Print list, one for each URL
 	foreach($urlLang as $url => $langIndex) {
 		$lang = chooseLanguage($langIndex,$PAGELANG,$TEMPLATEDATA['DefaultLanguage']); #Language in the index best match user language
-		echo '<a href="/',$lang,'/',$url,'" class="contentlist" data-bgimage="/',
-			$urlSet[$url][$lang]['Poster'],'"><div>',
+		echo '<a href="/',$lang,'/',$url,'" class="menu" style="background-image:linear-gradient(rgba(0,0,0,0.5)100%,rgba(0,0,0,0.5)100%)',$urlSet[$url][$lang]['Poster'],'"><div>',
 			'<h2>',$urlSet[$url][$lang]['Title'],'</h2>',
 			'<p class="content_description">',$urlSet[$url][$lang]['Description'],'</p>',
-			'<p class="content_keywords">',$urlSet[$url][$lang]['Keywords'],'</p>',
-			'<p class="content_author">',$urlSet[$url][$lang]['Author'],'</p>',
-			'<p class="content_lastmodify">',$urlSet[$url][$lang]['LastModify'],'</p>';
+			'<p class="content_keywords">',$urlSet[$url][$lang]['Keywords'],'</p>';
 		if (count($urlLang[$url]) > 1) { #Multiple language avaliable for a URL
 			echo '<p class="content_multilingual">';
-			foreach ($urlLang[$url] as $x) echo '<a class="langlink" href="/',$x,'/',$url,'">',$x,'</a>';
+			foreach ($urlLang[$url] as $x) echo '<span class="langlink">',$x,'</span>';
 			echo '</p>';
 		}
-		echo '</div></a>';
+		echo '<p class="content_author">',$urlSet[$url][$lang]['Author'],'</p>',
+			'<p class="content_lastmodify">',$urlSet[$url][$lang]['LastModify'],'</p>',
+			'</div></a>';
+		
 	}
 ?>
