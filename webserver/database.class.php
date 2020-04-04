@@ -112,7 +112,27 @@
 			$sendProce = $procedure.'('.implode(',',$paramSet).')';
 			
 			//Call the procedure
-			$data = parent::call($sendProce,$param,$return);
+			$data = null;
+			$try = 0;
+			$ok = false;
+			while ($try < 5) {
+				try {
+					$data = parent::call($sendProce,$param,$return);
+					$ok = true;
+					break;
+				} catch (Exception $e) {
+					if (strpos($e->getMessage(),'1213 Deadlock found')) {
+						writeLog('[DBMS]Error: 1213 Deadlock found. Retry...');
+						$try++; #Deadlock found, retry 5 times
+						continue; #If cannot solve, give up
+					}
+					else
+						throw $e;
+				}
+			}
+			if (!$ok)
+				throw new BW_DatabaseServerError(500,'Fail to execute: DB deadlock.');
+			
 			writeLog('[DBMS]Procedure executed.');
 			return $data;
 		}
