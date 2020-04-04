@@ -34,12 +34,12 @@
 	);
 	
 	if (in_array($PAGEDATA['Status'],['C','D','S','A','P'])) {
-		echo '<div style="background: linear-gradient(0.375turn, orange 7px, #000 7px,  #000 21.28px, orange 21.28px, orange 35.28px, #000 35.28px,  #000 49.57px, orange 49.57px); background-size: 40px 40px;"><div style="background-color: rgba(200,200,200,0.8);">';
+		echo '<div style="background: linear-gradient(rgba(240,240,240,0.75)100%,rgba(240,240,240,0.75)100%), linear-gradient(0.375turn, orange 7px, #000 7px,  #000 21.28px, orange 21.28px, orange 35.28px, #000 35.28px,  #000 49.57px, orange 49.57px); background-size: 40px 40px;">';
 		if ($PAGELANG == 'en')
 			echo $statusTable[$PAGELANG][$PAGEDATA['Status']];
 		else
 			echo $statusTable['default'][$PAGEDATA['Status']];
-		echo '</div></div>';
+		echo '</div>';
 	}
 ?>
 

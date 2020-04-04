@@ -142,7 +142,7 @@
 			<div class="pltr">
 				<img src="/web/logo.png" />
 				<div>
-					<p><?= $TEMPLATEDATA['SiteOwner'][$PAGELANG] ?></p>
+					<p>Admin: <?= $TEMPLATEDATA['SiteOwner'][$PAGELANG] ?></p>
 					<p>Admin e-mail: <a href="mailto:<?= $TEMPLATEDATA['AdminEmail'] ?>"><?= $TEMPLATEDATA['AdminEmail'] ?></a></p>
 					<p>© 
 <?php
