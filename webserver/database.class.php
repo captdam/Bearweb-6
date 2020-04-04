@@ -133,15 +133,15 @@
 		
 		final public function begin() {
 			parent::query('SAVEPOINT X'.$this->taskOrder,array());
-			writeLog($this->taskOrder.': Database application transaction init.');
+			writeLog('[DBMS] '.$this->taskOrder.': Database application transaction init.');
 		}
 		final public function commit() {
 			$this->taskOrder++;
-			writeLog($this->taskOrder.': All changes to database buffered.');
+			writeLog('[DBMS] '.$this->taskOrder.': All changes to database buffered.');
 		}
 		final public function cancel() {
 			parent::query('ROLLBACK TO X'.$this->taskOrder,array());
-			writeLog($this->taskOrder.': All changes to database discarded.');
+			writeLog('[DBMS] '.$this->taskOrder.': All changes to database discarded.');
 		}
 		
 		function __destruct() {

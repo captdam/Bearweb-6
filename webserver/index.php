@@ -68,8 +68,7 @@
 		ob_clean(); ob_start();
 		http_response_code(500);
 		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
-//		$BW->useErrorTemplate('BW_InternalServerError'.$e); ////////////////////////////////////////// DEV ////////////////////////////////////
-		$BW->useErrorTemplate('BW_InternalServerError'.'Internal error'); //////////////////////////// PRODUCT ////////////////////////////////
+		$BW->useErrorTemplate('BW_InternalServerError. '.(DEBUGMODE ? $e : '')); 
 		try {
 			$dumpfile = './log/'.date('y-m-d').'-'.TRANSACTIONID.'.dump';
 			file_put_contents($dumpfile,print_r($e,true));
