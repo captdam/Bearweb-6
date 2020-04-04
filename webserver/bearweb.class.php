@@ -6,15 +6,15 @@
 
 	class Bearweb {
 
-		protected $URL;		#URL of current page (from request)
-		protected $location;	#Language and region info in URL
+		protected	$URL;		#URL of current page (from request)
+		protected	$location;	#Language and region info in URL
 		
-		protected $database;	#Database connection interface
-		protected $logID;
+		public		$database;	#Database connection interface
+		protected	$logID;
 		
-		protected $site;	#Site infomation from database
-		protected $client;	#Client infomation
-		protected $page;	#Page data from database
+		protected	$site;	#Site infomation from database
+		protected	$client;	#Client infomation
+		protected	$page;	#Page data from database
 		
 		
 

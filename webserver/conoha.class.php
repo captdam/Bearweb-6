@@ -69,7 +69,7 @@
 		//GET
                 //$url: URL to resource, just the local URL, do not include beginning '/', for example 'photo/myphoto.png'
 		public function get($url) {
-			return $this->com('GET',$url);
+			return $this->com('GET',$url,null,'json'); #If ask json, Conoha will return plaintext for resource and return json for directory
 		}
 
 		//DELETE
@@ -78,16 +78,16 @@
 			return $this->com('DELETE',$url);
 		}
 		
-		private function com($method,$url,$post=null) {
+		private function com($method,$url,$post=null,$header=null) {
 			$curl = curl_init();
 			$request = array(
 				CURLOPT_URL		=> $this->endpoint.$url,
 				CURLOPT_HTTPHEADER	=> array('X-Auth-Token: '.$this->token),
 				CURLOPT_RETURNTRANSFER	=> true
 			);
-			switch($method) {
+			switch($method) { 
 				case 'GET':
-					/* GET by default */
+					/* cURL uses GET by default */
 					break;
 				case 'PUT':
 					$request[CURLOPT_PUT] = true;
@@ -97,11 +97,17 @@
 				default:
 					$request[CURLOPT_CUSTOMREQUEST] = $method;
 			}
+			if ($header == 'json') {
+				$request[CURLOPT_HTTPHEADER][] = 'Accept: application/json';
+			}
+			else {
+				/* Plaintext by default */
+			}
 			
 			curl_setopt_array($curl, $request);
 			$response = curl_exec($curl);
 			if (curl_error($curl))
-                                throw new Exception(curl_error($curl));
+				throw new Exception(curl_error($curl));
 			
 			return array(curl_getinfo($curl, CURLINFO_HTTP_CODE),$response);
 		}
