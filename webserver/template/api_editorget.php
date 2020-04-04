@@ -4,7 +4,7 @@
 		throw new BW_ClientError(401,'Not authed.');
 	
 	//Check - URL format
-	$url = $GET['url'] ? ''
+	$url = $GET['site'] ?? '';
 	if ( !checkRegex('URL',$url) )
 		throw new BW_ClientError(400,'Request URL contains invalid character.');
 	
@@ -25,7 +25,7 @@
 	
 	//Check - ownership
 	if (
-		!in_array('Admin',$client['UserInfo']['Group']) &&
+		!in_array('Admin',$BW->client['UserInfo']['Group']) &&
 		$client['UserInfo']['Username'] != $page['Author']
 	) {
 		throw new BW_ClientError(403,'Access denied: you are not the owner.');
@@ -53,15 +53,16 @@
 	if (!$object)
 		$object = null;
 	else {
+		$object = $object[0];
 		$object['Binary'] = base64_encode($object['Binary']); #Base64 encode for transfer
 		
 		//Special object - Remote storage
 		if ($sitemap['TemplateSub'] == 'externalimage') {
-			$object['HD_Display'] = objectStorageServer
+			global $OS;
+			$object['HD_Display_Orginal'] = base64_encode($OS->getContent(OS_PRIVATECONTAINER,SITENAME.'/image/orginal/'.$url));
+			$object['HD_Display_Public'] = base64_encode($OS->getContent(OS_PUBLICCONTAINER,SITENAME.'/'.$url));
 		}
 	}
-	
-	
 		
 	http_response_code(200);
 	$API = array(
