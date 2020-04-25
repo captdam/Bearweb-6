@@ -202,6 +202,9 @@ header a:hover,footer a:hover {
 		background-repeat: no-repeat;
 		transition: left 0.5s;
 	}
+	#side:hover {
+		background-image: url('/web/side_hover.png'),url('/web/side.png');
+	}
 	#side img {
 		display: block;
 		left: 0;

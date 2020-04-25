@@ -38,14 +38,13 @@
 			'URL'		=> $BW->URL,
 			'Language'	=> $language
 		),
-	true);
-	
+	true)[0];
 	
 
 /********************************* TO WRITE THE TEMPLATE *********************************/
 
 	//This contains page data from BW_Sitemap and BW_Webpage
-	$PAGEDATA = array_merge($webpage[0],$BW->page);
+	$PAGEDATA = array_merge($webpage,$BW->page);
 	
 	//Prefix user's multilingual info to links on the page
 	$USERLANGUAGE = $userLocation=='' ? '' : ('/'.$userLocation);
@@ -85,7 +84,7 @@
 	data-urlprefix="<?= $USERLANGUAGE ?>"
 >
 	<head>
-		<title><?= $PAGEDATA['Title']; ?> - Das SAM Club</title>
+		<title><?= $PAGEDATA['Title'].' - '.SITENAME; ?></title>
 		<meta name="keywords" content="<?= $PAGEDATA['Keywords'] ?>" />
 		<meta name="description" content="<?= $PAGEDATA['Description'] ?>" />
 		<meta name="author" content="<?= $PAGEDATA['Author'] ?>" />
@@ -127,7 +126,7 @@
 			<img src="/web/top.png" alt="Top of page" title="To page top" />
 		</div>
 		<main>
-			<div id="main_title" style="background-image:url('/<?= $PAGEDATA['Info']['Poster'] ?? 'web/banner.jpg' ?>')">
+			<div id="main_title" style="background-image:url('/<?= $PAGEDATA['Info']['poster'] ?? 'web/banner.jpg' ?>')">
 				<div>
 					<h1><?= $PAGEDATA['Title']; ?></h1>
 					<p><?= $PAGEDATA['Description']; ?></p>
