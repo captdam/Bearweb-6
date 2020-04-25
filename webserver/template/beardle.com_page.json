@@ -8,7 +8,7 @@
 			"Project"	: "/project",
 			"Resource"	: "/resource",
 			"Bearcraft"	: "/bearcraft",
-			"Account"		: "/user"
+			"Account"	: "/user"
 		},
 		"default" : {
 			"主页"		: "/",
@@ -25,6 +25,5 @@
 		"default"	: "Das SAM Club （熊社，物理社与军事社）"
 	},
 	"AdminEmail" : "admin@beardle.com",
-	
 	"Category" : "Activity,Project,Resource"
 }

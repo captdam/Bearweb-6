@@ -183,12 +183,12 @@ function spoiler(spoilerSwitchID,spoilerContentID){
 */
 
 /* HTML/DOM util */
-function removeAllChild(dom) { while(dom.lastChild) dom.lastChild.remove(); }
-function createElement(tag,content) { var x = document.createElement(tag); if (typeof content != 'undefined') x.textContent = content; return x;}
+function removeAllChild(node) { while(node.lastChild) node.lastChild.remove(); }
+function createElement(tag,content) { var x = document.createElement(tag); x.textContent = content ?? ''; return x;}
 
 //JSON to DOM
 function domStructure(struct) {
-	var x = document.createElement(struct.tag);
+	var x = createElement(struct.tag, null);
 	for (var key in struct) {
 		if (key != 'tag' && key != 'child') x[key] = struct[key];
 	}

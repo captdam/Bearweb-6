@@ -5,6 +5,7 @@
 		throw new BW_ClientError(400,'Username undefined or bad format.');
 	
 	//Get user info
+	writeLog('Get info about user: '.$username);
 	$user = $BW->database->call('User_get',array('Username' => $username),true);
 	if (!$user)
 		throw new BW_ClientError(404,'No such user.');

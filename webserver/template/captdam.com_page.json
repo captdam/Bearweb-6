@@ -7,7 +7,7 @@
 			"Blog"		: "/blog",
 			"Notes"		: "/note",
 			"Resource"	: "/resource",
-			"Account"		: "/user"
+			"Account"	: "/user"
 		},
 		"default" : {
 			"主页"		: "/",
@@ -23,6 +23,5 @@
 		"default"	: "Captdam （小明）"
 	},
 	"AdminEmail" : "admin@beardle.com",
-	
 	"Category" : "Blog,Note,Resource"
 }
