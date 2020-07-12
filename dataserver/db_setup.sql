@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.30, for Linux (x86_64)
 --
 -- Host: localhost    Database: Bearweb
 -- ------------------------------------------------------
--- Server version	5.7.29-0ubuntu0.16.04.1
+-- Server version	5.7.30-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -75,6 +75,7 @@ CREATE TABLE `BW_Session` (
   `Salt` char(64) COLLATE latin1_general_cs NOT NULL,
   PRIMARY KEY (`SessionID`,`CreateTime`),
   KEY `BW_Session__UsernameLink` (`Username`),
+  KEY `Alive` (`Expire`),
   CONSTRAINT `BW_Session__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -93,8 +94,8 @@ CREATE TABLE `BW_Sitemap` (
   `TemplateMain` varchar(45) NOT NULL,
   `TemplateSub` varchar(45) NOT NULL,
   `Author` varchar(16) DEFAULT NULL,
-  `CreateTime` datetime DEFAULT NULL,
-  `LastModify` datetime DEFAULT NULL,
+  `CreateTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `LastModify` datetime DEFAULT CURRENT_TIMESTAMP,
   `Copyright` varchar(255) DEFAULT NULL,
   `Status` char(1) NOT NULL DEFAULT 'O',
   `Info` json NOT NULL,
@@ -135,7 +136,7 @@ CREATE TABLE `BW_Transaction` (
   `TransactionID` varchar(255) COLLATE latin1_general_cs NOT NULL,
   `SessionID` char(64) COLLATE latin1_general_cs DEFAULT NULL,
   `Username` varchar(16) CHARACTER SET ascii DEFAULT NULL,
-  `IP` varchar(15) COLLATE latin1_general_cs DEFAULT NULL,
+  `IP` varchar(45) COLLATE latin1_general_cs DEFAULT NULL,
   `URL` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `ExecutionTime` decimal(10,2) unsigned DEFAULT NULL,
   `Status` char(3) COLLATE latin1_general_cs DEFAULT NULL,
@@ -144,7 +145,7 @@ CREATE TABLE `BW_Transaction` (
   KEY `BW_Transaction__SIDLink` (`SessionID`),
   CONSTRAINT `BW_Transaction__SIDLink` FOREIGN KEY (`SessionID`) REFERENCES `BW_Session` (`SessionID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `BW_Transaction__UsernameLink` FOREIGN KEY (`Username`) REFERENCES `BW_User` (`Username`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=33512 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+) ENGINE=InnoDB AUTO_INCREMENT=160870 DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,7 +161,7 @@ CREATE TABLE `BW_User` (
   `Group` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `Password` char(32) CHARACTER SET ascii NOT NULL,
   `LastActiveTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `RegisterIP` char(15) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `RegisterIP` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `RegisterTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Email` varchar(128) DEFAULT NULL,
   `Data` json NOT NULL,
@@ -248,7 +249,7 @@ DELIMITER ;;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = '+00:00' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `Sitemap_GenXML` ON SCHEDULE AT '2020-03-22 01:31:13' ON COMPLETION NOT PRESERVE ENABLE DO CALL Event_generateSitemapXMLManager() */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `Sitemap_GenXML` ON SCHEDULE EVERY 6 HOUR STARTS '2020-04-02 05:29:36' ON COMPLETION NOT PRESERVE ENABLE DO CALL Event_generateSitemapXMLManager() */ ;;
 /*!50003 SET time_zone             = @saved_time_zone */ ;;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;;
@@ -285,9 +286,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -297,7 +298,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Config_write`(
     IN in_value	VARCHAR(4096)
 )
 BEGIN
-	UPDATE BW_Config SET `Value` = in_value WHERE Site = in_site AND `Key` = in_Key;
+	INSERT INTO BW_Config (Site,`Key`,`Value`) VALUES (in_site,in_key,in_value)
+    ON DUPLICATE KEY UPDATE `Value` = in_value ;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -611,6 +613,36 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Sitemap_create` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sitemap_create`(
+	IN in_site			VARCHAR(45),
+    IN in_url			VARCHAR(255),
+    IN in_category		VARCHAR(45),
+    In in_templatemain	VARCHAR(45),
+    In in_templatesub	VARCHAR(45),
+    IN in_author		VARCHAR(16),
+    IN in_copyright		VARCHAR(255),
+    IN in_status		CHAR(1),
+    IN in_info			JSON
+)
+BEGIN
+	INSERT INTO BW_Sitemap (Site,URL,Category,TemplateMain,TemplateSub,Author,Copyright,`Status`,Info)
+    VALUES (in_site, in_url, in_category, in_templatemain, in_templatesub, in_author, in_copyright, in_status, in_info);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `Sitemap_get` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -686,6 +718,44 @@ BEGIN
 		) AS Site
 	)
     ORDER BY Map.LastModify DESC;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Sitemap_modify` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sitemap_modify`(
+	IN in_site			VARCHAR(45),
+    IN in_url			VARCHAR(255),
+    IN in_category		VARCHAR(45),
+    In in_templatemain	VARCHAR(45),
+    In in_templatesub	VARCHAR(45),
+    IN in_author		VARCHAR(16),
+    IN in_copyright		VARCHAR(255),
+    IN in_status		CHAR(1),
+    IN in_info			JSON
+)
+BEGIN
+	UPDATE BW_Sitemap SET
+		Category		= IFNULL(in_category,Category),
+        TemplateMain	= IFNULL(in_templatemain,TemplateMain),
+        TemplateSub		= IFNULL(in_templatesub,TemplateSub),
+        Author			= IFNULL(in_author,Author),
+        LastModify		= CURRENT_TIMESTAMP,
+        Copyright		= IFNULL(in_copyright,Copyright),
+        `Status`		= IFNULL(in_status,`Status`),
+        `Info`			= IFNULL(in_info,`Info`)
+    WHERE Site = in_site AND URL = in_url;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -912,6 +982,43 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `Webpage_createModify` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Webpage_createModify`(
+	IN in_site			VARCHAR(45),
+    IN in_url			VARCHAR(255),
+    IN in_language		VARCHAR(5),
+    IN in_title			VARCHAR(255),
+    IN in_keywords		VARCHAR(255),
+    IN in_description	VARCHAR(4096),
+    IN in_content		LONGTEXT,
+    IN in_source		LONGTEXT,
+    IN in_style			VARCHAR(45)
+)
+BEGIN
+	INSERT INTO BW_Webpage (Site, URL, `Language`, Title, Keywords,` Description`, Content, `Source`, Style)
+	VALUES (in_site, in_url, in_language, in_title, in_keywords, in_description, in_content, in_source, in_style)
+    ON DUPLICATE KEY UPDATE
+		Title			= in_title,
+        Keywords		= in_keywords,
+        `Description`	= in_description,
+        Content			= in_content,
+        `Source`		= in_source,
+        Style			= in_style;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `Webpage_get` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -971,4 +1078,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-22  4:31:40
+-- Dump completed on 2020-07-12  9:03:43
