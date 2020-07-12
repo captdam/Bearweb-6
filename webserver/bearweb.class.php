@@ -420,7 +420,7 @@
 			
 			  case 'A': #Auth need (privilege)
 				if (!isset($client['UserInfo']))
-					throw new BW_ClientError(401,'Access denied: auth required. Page is locked/pending, only admin, author and those have the privilege could access this resource. Please auth first.');
+					throw new BW_ClientError(401,'Access denied: auth required. Page is privilege protected, only admin, author and those have the privilege could access this resource. Please auth first.');
 				
 				$whiteGroup = []; $whiteUser = []; 
 				try {
@@ -435,15 +435,17 @@
 					!in_array($client['UserInfo']['Username'],$whiteUser) &&
 					count(array_intersect($client['UserInfo']['Group'],$whiteGroup)) == 0
 				) {
-					throw new BW_ClientError(403,'Access denied: you are not in the whitelist. Page is locked/pending, only admin, author and those have the privilege could access this resource.');
+					throw new BW_ClientError(403,'Access denied: you are not in the whitelist. Page is locked/pending, only admin and author and those have the privilege could access this resource.');
 				}
 				break;
 			
 			  case 'P': #Pending page
 				if (
-					
-					!in_array('Admin',$client['UserInfo']['Group']) &&
-					$client['UserInfo']['Username'] != $page['Author']
+					!isset($client['UserInfo']) ||
+					(
+						!in_array('Admin',$client['UserInfo']['Group']) &&
+						$client['UserInfo']['Username'] != $page['Author']
+					)
 				) {
 					throw new BW_ClientError(403,'Access denied: pending page. Page is locked/pending, only admin and the author have the privilege to access this resource, please auth first.');
 				}
