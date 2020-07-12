@@ -51,67 +51,6 @@ ready().then( () => {
 	});
 } );
 
-//Giving style for content and content list
-ready().then( () => {
-	//Adding style for content list
-	if (!/mobile/i.test(window.navigator.userAgent)) { //Desktop: switch to DPTR with bg-image
-		Array.prototype.slice.call(document.querySelectorAll('.contentlist')).map(function(x){
-			//No poster, do nothing
-			if (x.dataset.bgimage == '/NONE')
-				return;
-			//Adding bg-image
-			x.classList.add('imagefill');
-			var opacity = x.dataset.imagefillopacity ? x.dataset.imagefillopacity : '0.8';
-			x.style.backgroundImage = 'linear-gradient(to bottom,rgba(255,255,255,' + opacity + '),rgba(255,255,255,' + opacity + ')),url(\'' + x.dataset.bgimage + '\')';
-			//Backup orginal HTML and reset element
-			var elementList = [];
-			x.firstChild.childNodes.forEach(function(y){
-				elementList.push(y);
-			});
-			while(x.lastChild)
-				x.lastChild.remove();
-			//Adding header
-			var header = document.createElement('h2');
-			header.textContent = elementList.shift().textContent;
-			x.appendChild(header);
-			//Using PLTR template for further info
-			var pltr = document.createElement('div');
-			pltr.classList.add('pltr');
-			var pltrImage = document.createElement('img');
-			pltrImage.src = x.dataset.bgimage;
-			pltr.appendChild(pltrImage);
-			var pltrText = document.createElement('div');
-			while(elementList.length) {
-				pltrText.appendChild(elementList.shift());
-			}
-			pltr.appendChild(pltrText);
-			x.appendChild(pltr);
-		});
-	}
-	else { //Mobile: remove description
-		Array.prototype.slice.call(document.querySelectorAll('.contentlist .content_description')).map(function(x){
-			x.remove();
-		});
-	}
-	//Adding style for keywords
-	Array.prototype.slice.call(document.querySelectorAll('.content_keywords')).map(function(x){
-		var keywords = x.textContent.split(', ');
-		x.textContent = '';
-		keywords.map(function(y){
-			var word = document.createElement('a');
-			word.textContent = y;
-			var color = '#';
-			color += Math.floor(Math.random()*128+128).toString(16);
-			color += Math.floor(Math.random()*128+128).toString(16);
-			color += Math.floor(Math.random()*128+128).toString(16);
-			word.style.backgroundColor = color;
-			word.href = '/search?search=' + y;
-			word.target = 'search';
-			x.appendChild(word);
-		});
-	});
-} );
-
 //Add style for HTML <SELECT>
 ready().then( () => {
 	Array.prototype.slice.call(document.querySelectorAll('select')).map(function(x){
