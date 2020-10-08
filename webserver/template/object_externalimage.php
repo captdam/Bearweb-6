@@ -5,11 +5,12 @@
 			OS_PUBLICCONTAINER.'/'.SITENAME.'/'.$PAGEDATA['URL'];
 		http_response_code(303);
 		header('Location: '.$os);
+		$BW->log('Redirect to orginal image at: '.$os);
 	}
 	
 	//Show thumb from local
 	else {
-		echo $PAGEDATA['Binary'];
-		writeLog('Binary (thumb) data output.');
+		$BW->log('Printing thumb in BW_Object.Binary.');
+		echo $object['Binary'];
 	}
 ?>

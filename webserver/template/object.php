@@ -1,19 +1,19 @@
 <?php
-	//Fetch object data
-	$object = $this->database->call(
-		'Object_get',
-		array(
-			'Site'		=> $BW->page['Site'],
-			'URL'		=> $BW->URL
-		),
-	true);
+	$BW->log('Execute main template: object.php');
+
+	$sql = $BW->remoteDB->prepare('CALL BW_Object_get(?,?)');
+	$sql->bindValue(1, $BW->sitemap['Site'], PDO::PARAM_STR);
+	$sql->bindValue(2, $BW->sitemap['URL'], PDO::PARAM_STR);
+	$sql->execute();
+	$object = $sql->fetch();
+	$sql->closeCursor();
+
 	if (!$object)
-		throw new BW_ClientError(404,'Object not found.');
+		throw new BW_DatabaseServerError(404, 'Object not found in BW_Object.');
+
+	$resource = array_merge($object, $BW->sitemap);
 	
-	//This contains object data from BW_Sitemap and BW_Object
-	$PAGEDATA = array_merge($object[0],$BW->page);
-	
-	header('Content-Type: '.$PAGEDATA['MIME']);
-	writeLog('Pass control to sub template.');
+	header('Content-Type: '.$object['MIME']);
+	$BW->log('Pass control to sub template.');
 	include $templateSub;
 ?>
