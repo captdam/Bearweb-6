@@ -14,18 +14,19 @@
 -- A session is create when the user send the first HTTP request in a period of time, it is used to identify the user during the period of time (HTTP is stateless, so we use session to deal with this).
 -- Technically speaking, SessionID is stored on both server-side in this database and on user-side in cookie. A session will be created if the user agent does not submit a valid SessionID (good format, not expired).
 -- A session should expire after the user logout (send a special request) or after the user inactive for a long time. A schedualed process should check the LastUsed field to expire sessions.
+-- Session is renew everytime client send a request to Bearweb.
 -- Expired session cannot be accessed. Request with an expired SessionID should get a new SessionID. This is the idea of "Secure logout".
 -- The session is not bind to any user (member) at the beginning. User need to login (send a special request) to bind his/her session to his/her username.
 -- Expired Session and all associated data should not be delete. For history record purpose. In another word, do NOT perform DELETE, unless lack of disk space.
 
 CREATE TABLE BW_Session (
-	SessionID	TEXT PRIMARY KEY,
-	CreateTime	TEXT DEFAULT CURRENT_TIMESTAMP,
-	LastUsed	TEXT DEFAULT CURRENT_TIMESTAMP,
-	Expire		INTEGER DEFAULT 0,
-	Username	TEXT,
-	JSKey		TEXT,
-	Salt		TEXT
+	SessionID 	TEXT NOT NULL PRIMARY KEY, 
+	CreateTime 	TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+	LastUsed 	TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+	Expire 		INTEGER NOT NULL DEFAULT 0, 
+	Username 	TEXT NOT NULL DEFAULT '', 
+	JSKey 		TEXT NOT NULL DEFAULT '', 
+	Salt 		TEXT NOT NULL DEFAULT '' 
 ) WITHOUT ROWID;
 
 CREATE INDEX BW_Session_Alive ON BW_Session (Expire);
@@ -41,14 +42,14 @@ CREATE INDEX BW_Session_History ON BW_Session (CreateTime);
 -- Old transaction and all associated data should not be delete. For history record purpose. In another word, do NOT perform DELETE, unless lack of disk space.
 
 CREATE TABLE BW_Transaction (
-	TransactionID	TEXT PRIMARY KEY,
-	URL		TEXT,
-	RequestTime	TEXT DEFAULT CURRENT_TIMESTAMP,
-	SessionID	TEXT,
-	IP		TEXT,
-	ExecutionTime	REAL,
-	Status		TEXT,
-	Log		TEXT
+	TransactionID 	TEXT NOT NULL PRIMARY KEY, 
+	URL 		TEXT NOT NULL DEFAULT '', 
+	RequestTime 	TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+	SessionID 	TEXT NOT NULL DEFAULT '', 
+	IP 		TEXT NOT NULL DEFAULT '', 
+	ExecutionTime 	REAL NOT NULL DEFAULT '', 
+	Status 		TEXT NOT NULL DEFAULT '', 
+	Log 		TEXT NOT NULL DEFAULT '' 
 ) WITHOUT ROWID;
 
 CREATE INDEX BW_Transaction_History ON BW_Transaction (RequestTime);
