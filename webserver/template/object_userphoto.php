@@ -5,12 +5,7 @@
 		throw new BW_ClientError(400, 'Username undefined or bad format.');
 	
 	//Get user info
-	$sql = $BW->remoteDB->prepare('CALL BW_User_get(?)');
-	$sql->bindValue(1, $username, PDO::PARAM_STR);
-	$sql->fetch();
-	$user = $sql->fetch();
-	$sql->closeCursor();
-
+	$user = $BW->query('BW_User_get', [$username], 1);
 	if (!$user)
 		throw new BW_ClientError(404, 'No such user.');
 	
