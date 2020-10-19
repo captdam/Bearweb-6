@@ -1,20 +1,8 @@
 <?php
+	require_once './config.php';
 	define('SITENAME',getenv('sitename'));
 	date_default_timezone_set('UTC');
-
-	define('TRANSACTIONID',uniqid(SITENAME.'-',true));
 	define('CURRENT_TIMESTAMP',date('Y-m-d H:i:s'));
-	
-	header('Cache-Control: private, max-age=3600');
-	header('B-Powered-By: Bearweb 6.0');
-	header('B-Request-ID: '.TRANSACTIONID);
-	
-	//Include the Bearweb framwwork
-	require_once './config.php';
-	require_once './bearweb.class.php';
-	require_once './database.class.php';
-	require_once './util.php';
-	require_once './objectstorage.class.php';
 	
 	//Setup error handler
 	set_error_handler(function($errNo,$errStr,$errFile,$errLine){
@@ -36,73 +24,64 @@
 			return $this->httpcode;
 		}
 	}
-	
 	class BW_ServerError extends BW_Error {}
-	class BW_WebServerError extends BW_ServerError{}
-	class BW_DatabaseServerError extends BW_ServerError{}
-	class BW_StorageServerError extends BW_ServerError{}
+	class BW_WebServerError extends BW_ServerError{}	#Server-side front-end error:	PHP script error
+	class BW_DatabaseServerError extends BW_ServerError{}	#Server-side end-end error:	Database error
+	class BW_ExternalServerError extends BW_ServerError{}	#Server-side cloud-end error:	External server error, such as cloud database, token server, object storage server...
+	class BW_ClientError extends BW_Error {}		#Client-side error:		Bad request from client
 	
-	class BW_ClientError extends BW_Error {}
+	//Include the Bearweb framwwork
+	require_once './bearweb.class.php';
+	require_once './util.php';
+	require_once './objectstorage.class.php';
 	
 	//Process page
-	writeLog('Job start!');
 	ob_start();
 	try {
 		$BW = new Bearweb();
-		$BW->ini();
-		$BW->useTemplate();
-		
+		$BW->init();
+		$BW->processRequest();
+
+		list($templateMain, $templateSub) = $BW->getTemplate();
+		$BW->log('Executing template...');
+		include $templateMain;
+
+		/* Error handling in template file:
+		 * Use $BW->query() to access remote database. Do not use try/catch block, error handled by framework. If error found, all database transactions in template will be rollback.
+		 * Do NOT access local database, it is for BW's private database. Find a workaround.
+		 * If an error needs to be throw, using:
+		 * 	- BW_ClientError(4xx, 'Description.')		for client error, such as bad request, bad data format.
+		 * 	- BW_DatabaseServerError(5xx, 'Description.')	for database error, such as missing record. (Most database error is handled by framework. You may catch other error and throw this one if you think it is appropriate)
+		 * 	- BW_ExternalServerError(5xx, 'Description.')	for error on another server, such as external database server time-out.
+		 * 	- BW_WebServerError(5xx, 'Description.')	for error on this server, such as missing local file.
+		*/
+
+		$BW->log('Template executed.');
+		$BW->postProcess();
+
 	} catch(BW_ClientError $e) { #Client error: show the error detail
 		ob_clean(); ob_start();
 		http_response_code($e->getHttpCode());
-		writeLog('Task TERMINATED! Due to CLIENT ERROR: '.$e);
+		$BW->log('HALT! CLIENT ERROR: '.$e->getMessage());
+/**/	//	die($e->getMessage());
 		$BW->useErrorTemplate($e);
 		
 	} catch(BW_ServerError $e) { #Server error: show error type
 		ob_clean(); ob_start();
 		http_response_code($e->getHttpCode());
-		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
-		$BW->useErrorTemplate(DEBUGMODE ? $e : get_class($e));
+		$BW->log('HALT! SERVER ERROR: '.$e->getMessage());
+/**/	//	die($e->getMessage());
+		$BW->useErrorTemplate(DEBUGMODE ? $e->getMessage() : 'BW_ServerError');
 		
-	} catch(Exception $e) { #Unexcepted error
+	} catch(Exception $e) { #Unexcepted error: dump detail in log
 		ob_clean(); ob_start();
 		http_response_code(500);
-		writeLog('Task TERMINATED! Due to SERVER ERROR: '.$e,true);
-		$BW->useErrorTemplate('BW_InternalServerError. '.(DEBUGMODE ? $e : '')); 
-		try {
-			$dumpfile = './log/'.date('y-m-d').'-'.TRANSACTIONID.'.dump';
-			file_put_contents($dumpfile,print_r($e,true));
-			writeLog('BW memory dumped: '.$dumpfile);
-		} catch(Exception $e) {
-			/* If fail, ignore */
-		}
+		$BW->log('HALT! UNEXPECTED SERVER ERROR: '.$e->getMessage());
+		$BW->log(print_r($e,true));
+/**/	//	die($e->getMessage());
+/**/	//	var_dump($e);
+		$BW->useErrorTemplate(DEBUGMODE ? $e->getMessage() : 'BW_ServerError');
 	}
-	
-	//Process done: record request result
-	$BW->done();
-	writeLog('Job done!');
-	
-	//Write log to file system
-	function writeLog($string,$err=false) {
-		$text  = '['.date('y-m-d H:i:s').']';
-		$text .= '['.TRANSACTIONID.']';
-		$text .= $err ? '[ERROR]' : '';
-		$text .= $string."\n";
-		
-		$file = './log/'.date('y-m-d').'.log';
-		for ($i = 0; $i < 5; $i++) { #Retry 5 times if files system busy
-			if (file_put_contents($file,$text,FILE_APPEND))
-				break;
-			usleep(1000);
-		}
-		
-		if (!$err) #Write error to error log file
-			return;
-		$file = './log/'.date('y-m-d').'-error.log';
-		for ($i = 0; $i < 5; $i++) { #Retry 5 times if files system busy
-			if (file_put_contents($file,$text,FILE_APPEND))
-				break;
-			usleep(1000);
-		}
-	}
+
+	$BW = null;
 ?>
