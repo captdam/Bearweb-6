@@ -1,29 +1,18 @@
 {
-	"DefaultLanguage" : "zh",
-	"NavLinks" : {
-		"en" : {
-			"Homepage"	: "/",
-			"About"		: "/about",
-			"Activity"	: "/activity",
-			"Project"	: "/project",
-			"Resource"	: "/resource",
-			"Bearcraft"	: "/bearcraft",
-			"Account"	: "/user"
-		},
-		"default" : {
-			"主页"		: "/",
-			"关于"		: "/about",
-			"动态"		: "/activity",
-			"作品"		: "/project",
-			"资源"		: "/resource",
-			"Bearcraft"	: "/bearcraft",
-			"账户"		: "/user"
-		}
+	"Name" : "Beardle",
+	"DefaultLanguage" : "en",
+	"DefaultRegion" : "",
+	"Nav" : {
+		"__INDEX__" : ["en","zh"],
+		"/" : ["Homepage", "主页"],
+		"/about" : ["About", "关于"],
+		"/activity" : ["Activity", "动态"],
+		"/project" : ["Project", "作品"],
+		"/resource" : ["Resource", "资源"],
+		"/bearcraft" : ["Bearcraft", "Bearcraft"],
+		"/user" : ["Account", "账户"]
 	},
-	"SiteOwner" : {
-		"en"		: "Das SAM Club (Das Science And Military Club)",
-		"default"	: "Das SAM Club （熊社，物理社与军事社）"
-	},
+	"SiteOwner" : "Das SAM Club (Das Science And Military Club)",
 	"AdminEmail" : "admin@beardle.com",
 	"Category" : "Activity,Project,Resource"
 }

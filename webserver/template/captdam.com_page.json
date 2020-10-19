@@ -1,27 +1,17 @@
 {
-	"DefaultLanguage" : "zh",
-	"NavLinks" : {
-		"en" : {
-			"Homepage"	: "/",
-			"About"		: "/about",
-			"Blog"		: "/blog",
-			"Notes"		: "/note",
-			"Resource"	: "/resource",
-			"Account"	: "/user"
-		},
-		"default" : {
-			"主页"		: "/",
-			"关于"		: "/about",
-			"博客"		: "/blog",
-			"随笔"		: "/note",
-			"资源"		: "/resource",
-			"账户"		: "/user"
-		}
+	"Name" : "CaptDam",
+	"DefaultLanguage" : "en",
+	"DefaultRegion" : "",
+	"Nav" : {
+		"__INDEX__" : ["en","zh"],
+		"/" : ["Homepage", "主页"],
+		"/about" : ["About", "关于"],
+		"/blog" : ["Blog", "博客"],
+		"/note" : ["Notes", "随笔"],
+		"/resource" : ["Resource", "资源"],
+		"/user" : ["Account", "账户"]
 	},
-	"SiteOwner" : {
-		"en"		: "Captdam",
-		"default"	: "Captdam （小明）"
-	},
+	"SiteOwner" : "Captdam",
 	"AdminEmail" : "admin@beardle.com",
 	"Category" : "Blog,Note,Resource"
 }
