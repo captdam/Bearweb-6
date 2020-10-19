@@ -138,6 +138,13 @@
 		}
 
 	}
+
+	//Checker
+	class Checker {
+		public static function url($input) { return preg_match('/^[A-Za-z0-9_\-\:\/\.]{0,128}$/', $input); }
+		public static function sid($input) { return preg_match('/^[A-Za-z0-9\/\+]{128}$/', $input); }
+		public static function username($input) { return preg_match('/^[A-Za-z0-9]{2,16}$/', $input); }
+	}
 	
 	
 	//Check data (string) type by regex
@@ -168,23 +175,40 @@
 		return $cp;
 	}
 	
-	//Given a list of avaliable language, return the bet match
-	function chooseLanguage($list,$prefer,$pageDefault=null) {
-		//100% matched
-		if (in_array($prefer,$list))
-			return $prefer;
+	//Given a list of avaliable language, return the best match
+	function selectMultilingual($list, $preferLanguage, $preferRegion, $defaultLanguage, $defaultRegion) {
+		$urlLocation = trim($preferLanguage.'-'.$preferRegion, '-');
+		$defaultLocation = trim($defaultLanguage.'-'.$defaultRegion, '-');
+
+		if (in_array($urlLocation, $list)) #Prefer language and region 100% matched with a record, eg: zh-cn->zh-cn, en->en
+			return $urlLocation;
 		
-		//Partial matched (only cares language, DNC region)
-		foreach($list as $x)
-			if (substr($prefer,0,2) == substr($x,0,2)) return $x; #Choose the first match
-		
-		//No match on perfer language, use second perfer (should be page default language)
-		if ($pageDefault) {
-			if (in_array($pageDefault,$list)) return $pageDefault;
-			foreach ($list as $x) if (substr($pageDefault,0,2) == substr($x,0,2)) return $x;
+		foreach ($list as $x) {
+			if ($preferLanguage == substr($x, 0, 2)) #Prefer language matched with a record, eg: en-ca->en-us, zh->zh-cn, en-us->en
+				return $x;
 		}
+
+		if (in_array($defaultLocation, $list)) #No match with request language and region info, use default of site
+			return $defaultLocation;
 		
-		//No match, return any one in the list
-		return $list[0];
+		foreach ($list as $x) {
+			if ($defaultLanguage == substr($x, 0, 2))
+				return $x;
+		}
+
+		return $list[0]; #No match with request or default, use the first one in list
+	}
+
+	function multilingualTextFilter($textArray, $preferLanguage, $preferRegion, $defaultLanguage, $defaultRegion) {
+		/* $textArray = ['__INDEX__'=>[lang1,lang2,...], 'KEY1'=>[text1Lang1,text1Lang2,...], 'KEY2'=>[text2Lang1,text2Lang2,...]] lang1 will be used as default*/
+		$language = selectMultilingual($textArray['__INDEX__'], $preferLanguage, $preferRegion, $defaultLanguage, $defaultRegion);
+		$index = array_search($language, $textArray['__INDEX__']);
+
+		$result = array();
+		foreach($textArray as $text=>$lang) {
+			if ($text != '__INDEX__')
+				$result[$text] = $lang[$index];
+		}
+		return $result;
 	}
 ?>
